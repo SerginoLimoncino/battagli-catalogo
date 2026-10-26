@@ -64,6 +64,10 @@
 .favbtn[aria-pressed="true"] svg { fill: #f2b705; stroke: #d29a00; }
 #favList .rrow .star { width: 16px; height: 16px; fill: #f2b705; stroke: #d29a00; opacity: 1; }
 
+/* share: three buttons, Android / iPhone / PC Windows */
+.shareops { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.shareops .btn { padding-left: 6px; padding-right: 6px; font-size: 14.5px; }
+#iosBox { display: none !important; }
 /* share links */
 .sharelinks .slink { display: grid; grid-template-columns: 92px 1fr auto; gap: 8px; align-items: center; margin: 6px 0; }
 .sharelinks .slink b { font-size: 14px; }
@@ -574,7 +578,7 @@ main > *, .art > *, .photos > *, .row > *, .search-sticky > * { min-width: 0; ma
 </header>
 <main class="wrap">
   <section><div class="block-h"><h2>Catalogo PDF</h2></div><button class="btn primary" type="button" data-goto="catalog">Aggiorna catalogo</button><button class="btn" type="button" id="catBack" hidden style="margin-top:10px;background:var(--soft);color:var(--ink)">Torna al catalogo precedente</button><p class="note" style="margin-top:8px">Quando esce un nuovo catalogo, caricalo qui: l'app rilegge tutto da sola (codici, foto, pagine) e sostituisce il vecchio.</p></section>
-  <section id="shareSec" hidden><div class="block-h"><h2>Condividi l'app</h2></div><div class="shareops"><button class="btn primary" type="button" id="shareAndroid"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.87 3.22A11.4 11.4 0 0 0 12 8.15c-1.77 0-3.43.39-4.91 1L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>Android</button><button class="btn primary" type="button" id="shareIos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.3-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.07 1.96-.49 2.56-1.21z"/></svg>iPhone</button></div><div id="iosBox" hidden><div class="ioslink"><input id="iosUrl" readonly aria-label="Link per iPhone"><button class="btn primary" type="button" id="iosCopy">Copia</button></div><p class="note" style="margin-top:6px">Su iPhone: apri il link con Safari, poi Condividi → Aggiungi alla schermata Home.</p></div><p class="note" style="margin-top:8px">Invia l'app con il catalogo aggiornato.</p><div id="shareLinks" class="sharelinks"><p class="note" style="margin:10px 0 6px">Oppure manda il link giusto (WhatsApp, email):</p>
+  <section id="shareSec" hidden><div class="block-h"><h2>Condividi l'app</h2></div><div class="shareops"><button class="btn primary" type="button" id="shareAndroid"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.87 3.22A11.4 11.4 0 0 0 12 8.15c-1.77 0-3.43.39-4.91 1L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>Android</button><button class="btn primary" type="button" id="shareIos"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.3-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.07 1.96-.49 2.56-1.21z"/></svg>iPhone</button><button class="btn primary" type="button" id="sharePc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="1.6"/><path d="M8 20.5h8M12 16.5v4"/></svg>PC Windows</button></div><div id="iosBox" hidden><div class="ioslink"><input id="iosUrl" readonly aria-label="Link per iPhone"><button class="btn primary" type="button" id="iosCopy">Copia</button></div><p class="note" style="margin-top:6px">Su iPhone: apri il link con Safari, poi Condividi → Aggiungi alla schermata Home.</p></div><p class="note" style="margin-top:8px">Invia l'app con il catalogo aggiornato.</p><div id="shareLinks" class="sharelinks"><p class="note" style="margin:10px 0 6px">Oppure manda il link giusto (WhatsApp, email):</p>
 <div class="slink"><b>Android</b><input readonly value="https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-Marine-Hardware.apk" aria-label="Link Android"><button class="btn" type="button" data-copy>Copia</button></div>
 <div class="slink"><b>iPhone</b><input readonly value="https://serginolimoncino.github.io/battagli-catalogo/" aria-label="Link iPhone"><button class="btn" type="button" data-copy>Copia</button></div>
 <div class="slink"><b>PC Windows</b><input readonly value="https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-PC-Windows.zip" aria-label="Link PC Windows"><button class="btn" type="button" data-copy>Copia</button></div>
@@ -2861,6 +2865,21 @@ document.addEventListener('click', e => {
   toast(on ? 'Aggiunto ai preferiti' : 'Tolto dai preferiti'); renderFav();
 });
 
+// ---------- share the app: Android / iPhone / PC Windows, always this edition ----------
+const SHARE_URL = { android: 'https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-Marine-Hardware.apk', ios: 'https://serginolimoncino.github.io/battagli-catalogo/', pc: 'https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-PC-Windows.zip' };
+const SHARE_TXT = { android: 'Catalogo Battagli per Android: scarica e installa l\'app da questo link.', ios: 'Catalogo Battagli per iPhone: apri il link con Safari, poi Condividi > "Aggiungi alla schermata Home".', pc: 'Catalogo Battagli per PC Windows: scarica lo zip, estrailo e apri "Battagli Catalogo".' };
+async function shareTo(k) {
+  const url = SHARE_URL[k], text = SHARE_TXT[k];
+  try { if (navigator.share) { await navigator.share({ title: 'Catalogo Battagli', text, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  let ok = false; try { await navigator.clipboard.writeText(text + ' ' + url); ok = true; } catch (e) {}
+  if (!ok) { const t = document.createElement('textarea'); t.value = text + ' ' + url; document.body.appendChild(t); t.select(); try { ok = document.execCommand('copy'); } catch (e) {} t.remove(); }
+  toast(ok ? 'Link copiato: incollalo su WhatsApp o nella mail' : url);
+}
+for (const id of ['shareAndroid', 'shareIos']) { const o = document.getElementById(id); if (o) o.replaceWith(o.cloneNode(true)); }
+$('shareSec').hidden = false;
+$('shareAndroid').addEventListener('click', () => (typeof APP !== 'undefined' && APP && typeof shareApp === 'function') ? shareApp() : shareTo('android'));
+$('shareIos').addEventListener('click', () => shareTo('ios'));
+$('sharePc').addEventListener('click', () => shareTo('pc'));
 // ---------- share links (this edition only) ----------
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-copy]'); if (!b) return;
