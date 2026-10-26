@@ -1077,7 +1077,9 @@ function matchWord(t) {
   const out = new Map();
   const add = (w, str) => { const rs = VOCAB.get(w); if (rs) for (const r of rs) if ((out.get(r) || 0) < str) out.set(r, str); };
   if (/^\d+(\.\d+)?$/.test(t)) { add(t, 1); return out; }
-  const forms = SYNMAP.get(t) || [t];
+  const forms = (SYNMAP.get(t) || [t]).slice();
+  // spelled by ear: sica -> sika, kavo -> cavo, filtro/philtro, yamaha/iamaha, inoxs -> inox
+  if (!VOCAB.has(t)) for (const v of [t.replace(/c(?=[aou])/g, 'k'), t.replace(/k/g, 'c'), t.replace(/ch/g, 'k'), t.replace(/ph/g, 'f'), t.replace(/y/g, 'i'), t.replace(/^i/, 'y'), t.replace(/ks/g, 'x'), t.replace(/x/g, 'ks'), t.replace(/(.)\1/g, '$1')]) if (v !== t && VOCAB.has(v) && !forms.includes(v)) forms.push(v);
   for (const f of forms) {
     const own = f === t ? 1 : .92;
     if (VOCAB.has(f)) add(f, own);
@@ -1613,6 +1615,12 @@ async function readCodes(cv, have, onHit, isLive) {
   const take = (cands, how) => { for (const c of cands) if (have.has(c) && !got.includes(c)) { got.push(c); onHit && onHit(c, how); } };
   take((await barcodeRead(cv)).flatMap(t => codeCands(t)), 'barcode');
   if (got.length || (isLive && !isLive())) return { codes: got, near: [], text };
+  // The strong reader first: every line on the photo, handwriting too, matched against the catalogue.
+  try {
+    const pp = await ppRead(cv, have, isLive);
+    if (pp) { for (const x of pp.sure) take([x.code], x.how); return { codes: got, near: got.length ? [] : pp.near, nearCost: pp.nearCost, text: pp.text }; }
+  } catch (e) {}
+  if (isLive && !isLive()) return { codes: got, near: [], text };
   let w; try { w = await ocrCodeWorker(); } catch (e) { return { codes: got, near: [], text }; }
   const boxes = findLabels(cv), tries = [];
   // Each label: barcode, then text at two sizes and two layouts; sideways only for the biggest ones.
@@ -1658,6 +1666,56 @@ async function readCodes(cv, have, onHit, isLive) {
   }
   return { codes: got, near: got.length ? [] : nearCodes([...near], have), text: good.join(' ') };
 }
+// ---------- strong reader (PP-OCR) ----------
+const PP_BASES = ['./lib/pp/', 'https://serginolimoncino.github.io/battagli-catalogo/lib/pp/'];
+let ppP = null;
+function ppReady() {
+  if (ppP) return ppP;
+  ppP = (async () => {
+    for (const base of PP_BASES) {
+      try {
+        window.PP_BASE = base;
+        if (!window.PPOCR) await loadScript(base + 'pp.js');
+        await PPOCR.ready();
+        return PPOCR;
+      } catch (e) { /* next place */ }
+    }
+    throw new Error('pp');
+  })();
+  ppP.catch(() => { ppP = null; });
+  return ppP;
+}
+// { sure: [{code, how}], near: [codes], text } or null when the reader is not available.
+async function ppRead(cv, have, isLive) {
+  let P; try { P = await ppReady(); } catch (e) { return null; }
+  let lines = await P.read(cv, { isLive, maxSide: 960 });
+  if (isLive && !isLive()) return { sure: [], near: [], text: '' };
+  let res = ppJudge(P, lines, have);
+  // nothing sure: a second, finer look at the photo (small or broken-up handwriting)
+  if (!res.sure.length) {
+    lines = lines.concat(await P.read(cv, { isLive, maxSide: 1280, skip: lines }));
+    if (isLive && !isLive()) return { sure: [], near: [], text: '' };
+    res = ppJudge(P, lines, have);
+  }
+  return res;
+}
+function ppJudge(P, lines, have) {
+  const sure = [], near = [];
+  for (const m of P.matchCodes(lines, [...have], 12)) {
+    const [a, b] = m.c;
+    // read for sure: (almost) every digit clear, and clearly better than the next code
+    if (a && a.cost < 2 && (!b || b.cost - a.cost >= 0.7)) { if (!sure.some(x => x.code === a.code)) sure.push({ code: a.code, how: m.conf < 0.9 ? 'penna' : 'testo' }); continue; }
+    // otherwise the closest codes, from lines about as long as a code (not barcodes or dates)
+    if (m.n <= 9) for (const x of m.c) if (x.cost < 12) near.push(x);
+  }
+  near.sort((p, q) => p.cost - q.cost);
+  // the closest code's brothers first (same article, other size or colour: 01.0577.01, .02, .04)
+  const fam = near.length ? near[0].code.slice(0, 6) : '', lim = near.length ? near[0].cost + 6 : 0;
+  near.sort((p, q) => ((q.code.startsWith(fam) && q.cost < lim) - (p.code.startsWith(fam) && p.cost < lim)) || p.cost - q.cost);
+  const nearCodes = [...new Set(near.map(x => x.code))].filter(c => !sure.some(x => x.code === c)).slice(0, 4);
+  const text = lines.filter(l => l.conf >= 0.75 && l.text.trim().length >= 2).map(l => l.text).join('\n');
+  return { sure, near: near[0] && near[0].cost < 9 ? nearCodes : [], nearCost: near.length ? near[0].cost : 99, text };
+}
 // Catalogue codes one digit away from what was read (shown as "maybe").
 function nearCodes(cands, have) {
   const out = [];
@@ -1696,20 +1754,48 @@ function ocrWords(text) {
 let codeSetAt = null, codeSetV = new Set();
 function codeSet() { if (codeSetAt !== INDEX.at) { codeSetAt = INDEX.at; codeSetV = new Set(INDEX.rows.map(r => r.c)); } return codeSetV; }
 // Articles whose description shares the most (rare) words with the text read on the photo.
-function textFind(text) {
-  const toks = String(text).replace(/([A-Za-z]{2,})[./]+(?=[A-Za-z])/g, '$1 ').split(/\s+/).map(w => w.replace(/^[^A-Za-z0-9À-ÿ]+|[^A-Za-z0-9À-ÿ']+$/g, ''))
-    // reader slips: 0AR -> OAR, 150Z -> 150; supplier codes like K6501480 are not in the catalogue
-    .map(w => /[A-Za-z]{2}/.test(w) ? w.replace(/0(?=[A-Za-z])|(?<=[A-Za-z])0/g, 'O') : w.replace(/^(\d{2,4})[A-Za-z]$/, '$1'))
+function boxToks(text) {
+  text = String(text).replace(/\b(?:q\.?ty|quantity|quantità|qta|pcs|pz|pieces|case)\s*[:.]?\s*\d+/gi, ' ')
+    .replace(/(\d)([A-Z][a-z])/g, '$1 $2').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Za-z])\.(\d)/g, '$1 $2');
+  return text.replace(/([A-Za-z]{2,})[./]+(?=[A-Za-z])/g, '$1 ').split(/\s+/).map(w => w.replace(/^[^A-Za-z0-9À-ÿ]+|[^A-Za-z0-9À-ÿ']+$/g, ''))
+    // reader slips: 0AR -> OAR, 150Z -> 150, 6RILLI -> GRILLI; supplier codes like K6501480 are not in the catalogue
+    .map(w => /[A-Za-z]{2}/.test(w) ? w.replace(/0(?=[A-Za-z])|(?<=[A-Za-z])0/g, 'O').replace(/^6(?=[A-Za-z]{3})/, 'G').replace(/(?<=[A-Za-z])6(?=[A-Za-z])/g, 'G') : w.replace(/^(\d{2,4})[A-Za-z]$/, '$1'))
     .filter(w => !/^[A-Za-z]{0,2}\d{5,}/.test(w))
-    .filter(w => /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-./]{2,}$/.test(w) || /^\d{1,4}([.,]\d+)?'?$/.test(w) || /^[A-Za-z]{1,4}\d{1,4}[A-Za-z]?$/.test(w));
-  if (!toks.length) return [];
-  const res = search('', toks.join(' ').slice(0, 500));
-  // two words in common, or one rare long word ("AQUA KEM" -> aquakem)
-  if (!res.list.length || ((res.best || 0) < 2 && !res.toks.some(t => t.length >= 6 && VOCAB.has(t) && VOCAB.get(t).length < 60))) return [];
-  const out = [], seenB = new Set();
-  for (const r of res.list) {
-    const b = INDEX.rows[r].b, key = b >= 0 ? b : 'r' + r; if (seenB.has(key)) continue; seenB.add(key); out.push(r); if (out.length >= 4) break;
+    .filter(w => /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-./]{2,}$/.test(w) || /^\d{1,4}([.,]\d+)?'?$/.test(w) || /^[A-Za-z]{1,4}\d{1,4}[A-Za-z]?$/.test(w) || /^\d{1,4}[x×]\d{1,4}/i.test(w));
+}
+const rareWord = t => t.length >= 6 && VOCAB.has(t) && VOCAB.get(t).length < 60;
+// Articles described by what is written on the box, best first (one per article family).
+function textFind(text) {
+  const lines = String(text).split('\n').map(l => l.trim()).filter(Boolean);
+  // single lines and pairs of lines (name on one line, size on the next), then everything together
+  const groups = [];
+  for (let i = 0; i < lines.length; i++) { groups.push([lines[i]]); if (i + 1 < lines.length) groups.push([lines[i], lines[i + 1]]); }
+  const strong = [];
+  for (const g of groups) {
+    const toks = boxToks(g.join(' ')); const words = toks.filter(t => /[A-Za-zÀ-ÿ]{3}/.test(t));
+    if (!words.length) continue;
+    const res = search('', toks.join(' ').slice(0, 300));
+    if (!res.list.length) continue;
+    // every word of the line found in one article: a line written about that article
+    if (!res.full || res.partial) continue;
+    // how telling the words are: rare catalogue words (FEMMINELLE, PORTAGOMMA) count a lot, common ones (MADE, MARINE) little
+    const N = INDEX.rows.length, idf = res.toks.filter(t => VOCAB.has(t) && /[a-zà-ÿ]{3}/.test(t)).reduce((a, t) => a + Math.log(N / (1 + VOCAB.get(t).length)), 0);
+    if (words.length >= 2 ? idf >= 5 : idf >= 4) strong.push({ res, idf, n: toks.length });
   }
+  // the most telling line wins
+  strong.sort((p, q) => q.idf - p.idf || q.n - p.n);
+  const out = [], seenB = new Set();
+  const add = list => { for (const r of list) { const b = INDEX.rows[r].b, key = b >= 0 ? b : 'r' + r; if (seenB.has(key)) continue; seenB.add(key); out.push(r); if (out.length >= 4) return; } };
+  for (const s of strong) { add(s.res.list.slice(0, 1)); if (out.length >= 4) break; }
+  if (out.length < 4) {
+    const toks = boxToks(lines.join(' '));
+    if (toks.length) {
+      const res = search('', toks.join(' ').slice(0, 500));
+      // two words in common, or one rare long word ("AQUA KEM" -> aquakem)
+      if (res.list.length && ((res.best || 0) >= 2 || res.toks.some(rareWord))) add(res.list);
+    }
+  }
+  for (const s of strong) { if (out.length >= 4) break; add(s.res.list); }
   return out;
 }
 function itemBtn(i) {
@@ -1777,10 +1863,11 @@ async function camAnalyze(cv, big, preCode) {
   if (preCode) { codes.push(preCode); showCodes('barcode'); }
   const codeJob = (preCode ? Promise.resolve({ codes: [], near: [], text: '' }) : readCodes(big || cv, codeSet(), (c, how) => { if (!live()) return; codes.push(c); showCodes(how); }, live)).then(r => {
     if (!live() || codes.length) return;
-    const found = textFind(r.text), near = r.near.filter(c => codeSet().has(c));
+    const found = textFind(r.text), near = r.near.filter(c => codeSet().has(c)), textFirst = found.length && r.nearCost >= 5;
     let html = '';
-    if (near.length) html += `<h3 class="sec-title"><span>Codice letto in parte: forse è</span></h3><div class="list">${near.map(c => itemBtn(INDEX.rows.findIndex(x => x.c === c))).join('')}</div>`;
-    if (found.length) html += `<h3 class="sec-title"><span>Dal testo sulla foto</span></h3><div class="list">${found.map(itemBtn).join('')}</div>`;
+    const nearH = near.length ? `<h3 class="sec-title"><span>Codice letto in parte: forse è</span></h3><div class="list">${near.map(c => itemBtn(INDEX.rows.findIndex(x => x.c === c))).join('')}</div>` : '';
+    const foundH = found.length ? `<h3 class="sec-title"><span>Dal testo sulla foto</span></h3><div class="list">${found.map(itemBtn).join('')}</div>` : '';
+    html += textFirst ? foundH + nearH : nearH + foundH;
     if (!html) { const ws = ocrWords(r.text); if (ws.length) html = '<p class="visnote">Nessun codice leggibile. Testo letto sulla foto, tocca per cercarlo:</p><div class="recent" style="flex-wrap:wrap">' + ws.map(w => `<button type="button" data-word="${esc(w)}" style="font-family:var(--f-ui)">${esc(w)}</button>`).join('') + '</div>'; }
     camShow('codeBox', html || '<p class="visnote">Nessun codice leggibile sulla foto.</p>');
   }).catch(() => { if (live() && !codes.length) camShow('codeBox', ''); });
@@ -2705,7 +2792,7 @@ document.addEventListener('click', e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 20, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 21, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 const vTxt = n => (n / 10).toFixed(1);
 let UPD = null;
 $('appVer').textContent = 'versione ' + vTxt(APP_V);
