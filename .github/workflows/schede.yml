@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Scarica le schede
         run: |
-          sudo apt-get install -y -qq poppler-utils >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils >/dev/null
           mkdir -p schede/pdfjs
           curl -fsSL -o schede/pdfjs/pdf.min.js https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js
           curl -fsSL -o schede/pdfjs/pdf.worker.min.js https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js
