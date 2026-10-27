@@ -124,3 +124,7 @@ e02b5f31 https://www.venezianiyachting.com/wp-content/uploads/2024/09/Diluente_6
 630c8575 https://www.venezianiyachting.com/wp-content/uploads/2024/07/R-Fibers_TDS.pdf
 5cb93f48 https://www.venezianiyachting.com/wp-content/uploads/2024/07/R-Spheres_TDS.pdf
 9fb39823 https://www.venezianiyachting.com/wp-content/uploads/2024/09/R-Silicies_TDS.pdf
+2c5f0444 https://eu.westsystem.com/app/uploads/2023/07/WEST-SYSTEM-105-Epoxy-Resin-with-205-Fast-Hardener-Rev-2.pdf
+62dc09bc https://eu.westsystem.com/app/uploads/2023/07/WEST-SYSTEM-105-Epoxy-Resin-with-206-Slow-Hardener-Rev-2.pdf
+de6bc880 https://eu.westsystem.com/app/uploads/2022/10/Italian.pdf
+6e783fec https://www.venezianiyachting.com/wp-content/uploads/2024/10/de_Propeller_Primer.pdf
