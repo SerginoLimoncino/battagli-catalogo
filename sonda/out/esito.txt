@@ -1,0 +1,6 @@
+1 404 1838 https://www.liros.com/en/
+2 200 503 https://www.liros.com/sitemap.xml
+3 404 1838 https://www.liros.com/en/yachting/
+4 404 1838 https://www.liros.com/de/
+5 200 800 https://www.kong.it/
+6 404 1245 https://www.kong.it/sitemap.xml
