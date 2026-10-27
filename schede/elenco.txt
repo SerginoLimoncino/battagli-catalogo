@@ -41,7 +41,6 @@ ce5b3776 https://www.boeroyachtcoatings.com/wp-content/uploads/2025/11/Biowood.p
 b18cdff9 https://industry.sika.com/dam/dms/itgen/2/sikaflex_-221.pdf
 d714911c https://industry.sika.com/content/dam/dms/fi01/r/sikaflex-295-uv.pdf
 8a2d71a6 https://gbr.sika.com/dam/dms/gb01/1/sikaflex-290-dcpro.pdf
-8dc979fc https://international-yachtpaint.com/s3/documents/TDS/Danboline_spa_A4_20230731.pdf
 ebb31e1f https://www.owatrol.com/media/akeneo_connector/media_files/F/I/FICHE_TECHNIQUE_OWAGRIP_11ec.pdf
 8dbad38a https://specialtycoatings.brand.akzonobel.com/m/4b0798be7d5add5f/original/Awlfair_LW_Fast_eng_A4_20190124.pdf
 ed9e2921 https://www.hempel.com/it-it/api/Hempel/DataSheet/PDS/Download/35780/it-IT
@@ -75,7 +74,6 @@ b8a64d13 https://www.venezianiyachting.com/wp-content/uploads/2024/09/VB-Matt_Aq
 a064ed7e https://www.boeroyachtcoatings.com/wp-content/uploads/2025/11/Boero-Grey-Water.pdf
 2b76b065 https://www.boeroyachtcoatings.com/wp-content/uploads/2026/09/Thinner-Pro.pdf
 ecb12b12 https://www.boeroyachtcoatings.com/wp-content/uploads/2026/09/Thinner-Pro-Fast.pdf
-278ce7d5 https://www.boeroyachtcoatings.com/wp-content/uploads/2026/09/Thinner-Pro-Slow.pdf
 90d04115 https://ita.sika.com/dms/getdocument.get/74701fb7-84f4-463f-ad0f-447cb179c4c9/sikaforce-436-l25.pdf
 06529d6e https://ita.sika.com/dam/dms/itgen/o/sikaflex_-591.pdf
 88ab917c https://ita.sika.com/dms/getdocument.get/cef46950-079b-46f2-b08b-a78c9c0454ac/sikaflex_-252.pdf
