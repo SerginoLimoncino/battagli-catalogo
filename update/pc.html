@@ -628,7 +628,7 @@ main > *, .art > *, .photos > *, .row > *, .search-sticky > * { min-width: 0; ma
   <section><div class="block-h"><h2>Catalogo PDF</h2></div><button class="btn primary" type="button" data-goto="catalog" style="display:flex;align-items:center;justify-content:center;gap:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:22px;height:22px;flex:none"><path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8z"/><path d="M14 2.5V8h5.5"/><text x="12" y="17.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="system-ui,sans-serif" fill="currentColor" stroke="none">PDF</text></svg>Aggiorna catalogo</button><button class="btn" type="button" id="catBack" hidden style="margin-top:10px;background:var(--soft);color:var(--ink)">Torna al catalogo precedente</button><p class="note" style="margin-top:8px">Quando esce un nuovo catalogo, caricalo qui: l'app rilegge tutto da sola (codici, foto, pagine) e sostituisce il vecchio.</p></section>
   <section><div class="block-h"><h2>Tema colore</h2></div><div class="themes"><button class="theme" type="button" data-theme="chiaro" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#0a5cc2 45% 100%)"></i><span>Chiaro<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="scuro" aria-pressed="false"><i style="background:linear-gradient(135deg,#1b2433 0 45%,#3b82f6 45% 100%)"></i><span>Scuro<small>Scuro</small></span></button><button class="theme" type="button" data-theme="carbon" aria-pressed="false"><i style="background:linear-gradient(135deg,#1d1d20 0 45%,#ff5a36 45% 100%)"></i><span>Carbon<small>Scuro</small></span></button><button class="theme" type="button" data-theme="viola" aria-pressed="false"><i style="background:linear-gradient(135deg,#241b3a 0 45%,#8b5cf6 45% 100%)"></i><span>Viola<small>Scuro</small></span></button><button class="theme" type="button" data-theme="azzurro" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#0891b2 45% 100%)"></i><span>Azzurro<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="arancio" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#d9730d 45% 100%)"></i><span>Tramonto<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="verde" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#15803d 45% 100%)"></i><span>Verde<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="rosso" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#c62833 45% 100%)"></i><span>Rosso<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="oceano" aria-pressed="false"><i style="background:linear-gradient(135deg,#10282b 0 45%,#14b8a6 45% 100%)"></i><span>Oceano<small>Scuro</small></span></button><button class="theme" type="button" data-theme="notte" aria-pressed="false"><i style="background:linear-gradient(135deg,#000000 0 45%,#0ea5e9 45% 100%)"></i><span>Notte<small>Nero totale</small></span></button><button class="theme" type="button" data-theme="verdenero" aria-pressed="false"><i style="background:linear-gradient(135deg,#050806 0 45%,#22c55e 45% 100%)"></i><span>Verde e nero<small>Scuro</small></span></button><button class="theme" type="button" data-theme="rosa" aria-pressed="false"><i style="background:linear-gradient(135deg,#ffffff 0 45%,#db2777 45% 100%)"></i><span>Rosa<small>Chiaro</small></span></button><button class="theme" type="button" data-theme="spezia" aria-pressed="false"><i style="background:linear-gradient(135deg,#0a0a0a 0 38%,#d4af37 38% 62%,#ffffff 62% 100%)"></i><span>Spezia Calcio<small>Oro e nero</small></span></button></div></section>
   <section hidden><div class="block-h"><h2>Ricerca da foto</h2></div><div class="credit" style="text-align:left"><p class="visnote" id="visSetting" style="margin:0">Non attiva</p><div class="visbar" style="margin-top:10px"><i id="visSetBar"></i></div></div></section>
-  <section id="updSec"><div class="block-h"><h2>Aggiornamenti</h2><span id="appVer"></span></div><button class="btn primary" type="button" id="updCheck">Controlla aggiornamenti</button><p class="note" id="updNote" style="margin-top:8px">Si aggiorna solo l'app (funzioni e ricerca), non il catalogo: il catalogo nuovo arriva in PDF e si carica con "Aggiorna catalogo". Quando c'è una versione nuova compare in alto il pulsante "Aggiorna". Catalogo, preferiti, numeri e impostazioni restano salvati.</p></section>
+  <section id="updSec"><div class="block-h"><h2>Aggiornamenti</h2><span id="appVer"></span></div><button class="btn primary" type="button" id="updCheck">Controlla aggiornamenti</button><p class="note" id="updNote" style="margin-top:8px">Si aggiorna l'app (funzioni e ricerca). Quando esce un catalogo nuovo l'app lo propone da sola; si può anche caricare un PDF con "Aggiorna catalogo". Quando c'è una versione nuova compare in alto il pulsante "Aggiorna". Catalogo, preferiti, numeri e impostazioni restano salvati.</p></section>
   <section><div class="block-h"><h2>Cronologia</h2></div><button class="btn ghost" type="button" id="clearHist2" style="background:var(--soft);color:var(--ink)">Cancella cronologia delle ricerche</button></section>
   <section><div class="credit">App creata da<b>Sergio Tassoni</b><small>Battagli Marine Hardware · Catalogo Codici</small></div></section>
 </main>
@@ -741,6 +741,16 @@ main > *, .art > *, .photos > *, .row > *, .search-sticky > * { min-width: 0; ma
 <div class="dropall" id="dropall" hidden><div>Rilascia per caricare il catalogo<small>Il catalogo vecchio verrà sostituito da quello nuovo</small></div></div>
 
 <script>
+// a code printed twice (a mention, then its table): the row with the price and data, like search
+let BEST = null, BEST_AT = null;
+function bestRow(c) {
+  if (BEST_AT !== INDEX) {
+    BEST_AT = INDEX; BEST = new Map();
+    const sc = r => { const f = r.f || []; return (f.some(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)) ? 100 : 0) + f.length; };
+    INDEX.rows.forEach((r, i) => { const j = BEST.get(r.c); if (j == null || sc(r) > sc(INDEX.rows[j])) BEST.set(r.c, i); });
+  }
+  const i = BEST.get(c); return i == null ? -1 : i;
+}
 // ---- Catalog parser: turns pdf.js text items into articles ----
 const CODE_RE = /(?<![\d.])(\d{2})\s?\.\s?(\d{4})\s?\.\s?(\d{2})(?![\d])/g;
 const HEADER_WORDS = /^(cod(\.|ice)?|art(\.|icolo)?|rif\.?|descrizione|desc\.?|colore|col\.?|misura|misure|mis\.?|dim\.?|dimensioni|ø|diam\.?|diametro|lunghezza|lungh\.?|larghezza|largh\.?|altezza|h|peso|kg|conf\.?|confezione|pz\.?|pezzi|q\.?tà|qtà|um|u\.m\.|listino|prezzo|€|euro|tipo|modello|mod\.?|formato|capacità|litri|lt\.?|attacco|filetto|carico|portata|potenza|volt|v|watt|w|ampere|a|materiale|finitura|taglia|size|ean|note|sez\.?|sezione|mm|cm|m|pollici|passo)$/i;
@@ -1035,7 +1045,7 @@ function idb() {
 let IDXMEMO;  // the index read once, until it is written again
 async function idbGet(k) { if (k === 'index' && IDXMEMO) return IDXMEMO; const v = await idbGet0(k); if (k === 'index' && v) IDXMEMO = v; return v; }
 async function idbGet0(k) { try { const d = await idb(); return await new Promise((res, rej) => { const q = d.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); } catch { return undefined; } }
-async function idbSet(k, v) { if (k === 'index') IDXMEMO = undefined; try { const d = await idb(); await new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); return true; } catch { return false; } }
+async function idbSet(k, v) { if (k === 'index') IDXMEMO = undefined; try { const d = await idb(); await new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('abort')); }); return true; } catch { return false; } }
 async function idbDel(k) { if (k === 'index') IDXMEMO = undefined; try { const d = await idb(); await new Promise(res => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = res; t.onerror = res; }); } catch {} }
 function lsGet(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
@@ -1108,12 +1118,12 @@ function renderRecent() {
   hasRecent = !!(rec.length || hist.length);
   hasRecCodes = rec8.length > 0;
   $('recentSec').hidden = !hasRecCodes || !!($('q').value + $('qd').value).trim();
-  $('recent').innerHTML = rec8.map(c => { const r = INDEX.rows.find(x => x.c === c); return `<button class="rrow" type="button" data-code="${c}"><i style="background:${(REP_ICON[c.slice(0, 2)] || {}).c || 'var(--blue)'}"></i><b>${fmtCode(c)}</b><span>${esc(famTitle(r))}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>`; }).join('');
+  $('recent').innerHTML = rec8.map(c => { const r = INDEX.rows[bestRow(c)]; return `<button class="rrow" type="button" data-code="${c}"><i style="background:${(REP_ICON[c.slice(0, 2)] || {}).c || 'var(--blue)'}"></i><b>${fmtCode(c)}</b><span>${esc(famTitle(r))}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>`; }).join('');
   const ico = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
   let h = '';
   if (hasRecent) h += '<div class="hh"><span>Ultime ricerche</span><button class="linkbtn" id="clearHist" type="button">Cancella</button></div>';
   h += hist.map(x => `<button class="hrow" type="button" data-hq="${esc(x.q || '')}" data-hd="${esc(x.qd || '')}">${ico}<span style="color:var(--ink);font-size:15px;font-weight:700">${esc(((x.q || '') + ' ' + (x.qd || '')).trim())}</span></button>`).join('');
-  h += rec.map(c => { const r = INDEX.rows.find(x => x.c === c), b = INDEX.blocks[r.b] || {}; return `<button class="hrow" type="button" data-code="${c}"><b>${fmtCode(c)}</b><span>${esc(famTitle(r))}</span></button>`; }).join('');
+  h += rec.map(c => { const r = INDEX.rows[bestRow(c)], b = INDEX.blocks[r.b] || {}; return `<button class="hrow" type="button" data-code="${c}"><b>${fmtCode(c)}</b><span>${esc(famTitle(r))}</span></button>`; }).join('');
   if (!hasRecent) h = '<div class="hempty">Nessuna ricerca recente</div>';
   $('histPop').innerHTML = h;
 }
@@ -1661,7 +1671,7 @@ async function camAnalyze(cv) {
       const codes = ocrCodes(text), words = ocrWords(text);
       if (!codes.length && !words.length) return;
       let html = '';
-      if (codes.length) html += '<h3 class="sec-title"><span>Codice letto sulla foto</span></h3><div class="list">' + codes.map(c => { const i = INDEX.rows.findIndex(r => r.c === c), b = INDEX.blocks[INDEX.rows[i].b] || {}; return `<button class="item" type="button" data-i="${i}"><span class="itxt"><span class="code">${fmtCode(c)}</span><span class="t">${esc(b.t || '')}</span></span></button>`; }).join('') + '</div>';
+      if (codes.length) html += '<h3 class="sec-title"><span>Codice letto sulla foto</span></h3><div class="list">' + codes.map(c => { const i = bestRow(c), b = INDEX.blocks[INDEX.rows[i].b] || {}; return `<button class="item" type="button" data-i="${i}"><span class="itxt"><span class="code">${fmtCode(c)}</span><span class="t">${esc(b.t || '')}</span></span></button>`; }).join('') + '</div>';
       if (words.length) html += '<p class="visnote" style="margin-top:10px">Testo letto sulla foto — tocca per cercarlo:</p><div class="recent" style="flex-wrap:wrap">' + words.map(w => `<button type="button" data-word="${esc(w)}" style="font-family:var(--f-ui)">${esc(w)}</button>`).join('') + '</div>';
       const box = document.createElement('div'); box.id = 'ocrBox'; box.innerHTML = html;
       const old = $('ocrBox'); if (old) old.remove();
@@ -1756,7 +1766,7 @@ function cmpToggle(c) {
   cmpSave();
 }
 function cmpRender() {
-  const rows = CMP.map(c => INDEX.rows.findIndex(r => r.c === c)).filter(i => i >= 0);
+  const rows = CMP.map(c => bestRow(c)).filter(i => i >= 0);
   if (rows.length < 2) { $('cmpBody').innerHTML = '<div class="empty"><b>Scegli almeno 2 articoli</b>Apri un articolo e tocca "Confronta".</div>'; return; }
   const cols = rows.length;
   const keys = []; rows.forEach(i => INDEX.rows[i].f.forEach(([k]) => { const kk = k || 'Dettaglio'; if (!keys.includes(kk)) keys.push(kk); }));
@@ -2257,7 +2267,7 @@ document.addEventListener('click', e => {
   const it = e.target.closest('[data-i]');
   if (it && (it.classList.contains('item') || it.classList.contains('var') || it.classList.contains('fam'))) { openRow(+it.dataset.i); return; }
   const rc = e.target.closest('[data-code]');
-  if (rc) { const i = INDEX.rows.findIndex(r => r.c === rc.dataset.code); if (i >= 0) openRow(i); return; }
+  if (rc) { const i = bestRow(rc.dataset.code); if (i >= 0) openRow(i); return; }
   const rp = e.target.closest('[data-rep]');
   if (rp) { $('q').value = rp.dataset.rep; shown = 60; runSearch(); window.scrollTo({ top: 0 }); return; }
   if (e.target.closest('#moreBtn')) { shown += 60; runSearch(); return; }
@@ -2353,23 +2363,26 @@ async function upgradeIndex() {
 const SITE_CAT = 'https://serginolimoncino.github.io/battagli-catalogo/CATALOG/'.replace('CATALOG', 'catalog');
 async function siteCatalog() {
   const cur = await idbGet('index');
-  try { const r = await fetch('./catalog/info.json', { cache: 'no-store' }); if (r.ok) return false; } catch (e) {}
-  try { const r = await fetch('./catalog/index.json', { cache: 'no-store' }); if (r.ok) return false; } catch (e) {}
+  let loc = null;
+  try { const r = await fetch('./catalog/info.json', { cache: 'no-store' }); if (r.ok) loc = (await r.json()) || {}; } catch (e) {}
+  if (!loc) try { const r = await fetch('./catalog/index.json', { cache: 'no-store' }); if (r.ok) return false; } catch (e) {}
   let info = null;
   try { const r = await fetch(SITE_CAT + 'info.json', { cache: 'no-store' }); if (r.ok) info = await r.json(); } catch (e) {}
   if (!info || !info.at) return false;
+  // catalogue inside the app (or this is the site): first start uses it, later only a newer one from the site is offered
+  if (loc && (!(cur && cur.rows && cur.rows.length) || !(info.at > (loc.at || 0)))) return false;
   if (cur && cur.rows && cur.rows.length) {
     // a newer catalogue was published: ask once, the one in use stays as "catalogo precedente"
     if (!cur.example && cur.at >= info.at) return false;
-    if (lsGet('catSkip', 0) === info.at) return false;
-    if (!cur.example && !confirm('È disponibile il nuovo ' + (info.name || 'catalogo').replace(/_/g, ' ') + ' con le foto più nitide (' + Math.round((info.size || 0) / 1048576) + ' MB). Lo scarico adesso? Serve internet per qualche minuto. Il catalogo di adesso resta salvato.')) { lsSet('catSkip', info.at); return false; }
-    try { const op = await idbGet('pdf'), ok = await idbGet('pdfKey'); if (!cur.example && op) { await idbSet('indexPrev', cur); await idbSet('pdfPrev', op); await idbSet('pdfKeyPrev', ok); } } catch (e) {}
+    if (lsGet('catSkip', 0) === info.at && Date.now() - lsGet('catSkipT', 0) < 3 * 864e5) return false;
+    try { const pv = await idbGet('indexPrev'); if (pv && pv.at >= info.at) return false; } catch (e) {}
+    if (!cur.example && !confirm('È disponibile il nuovo ' + (info.name || 'catalogo').replace(/_/g, ' ') + ' con le foto più nitide (' + Math.round((info.size || 0) / 1048576) + ' MB). Lo scarico adesso? Serve internet per qualche minuto. Il catalogo di adesso resta salvato.')) { lsSet('catSkip', info.at); lsSet('catSkipT', Date.now()); return false; }
   }
   const T = 'Scarico il catalogo';
   overlay(true, T, 'Serve internet per qualche minuto…', 0.02);
-  const idx = await (await fetch(SITE_CAT + 'index.json')).json();
+  const idx = await (await fetch(SITE_CAT + 'index.json', { cache: 'no-store' })).json();
   if (!idx || !idx.rows || !idx.rows.length) throw new Error('index');
-  const pr = await fetch(SITE_CAT + 'catalogo.pdf'); if (!pr.ok) throw new Error('pdf');
+  const pr = await fetch(SITE_CAT + 'catalogo.pdf', { cache: 'no-store' }); if (!pr.ok) throw new Error('pdf');
   const total = +pr.headers.get('content-length') || info.size || 0; let got = 0; const parts = [];
   if (pr.body && pr.body.getReader) {
     const rd = pr.body.getReader();
@@ -2377,29 +2390,43 @@ async function siteCatalog() {
       if (total) overlay(true, T, 'Catalogo PDF: ' + Math.round(got / 1048576) + ' di ' + Math.round(total / 1048576) + ' MB', 0.05 + 0.8 * got / total); }
   } else parts.push(new Uint8Array(await pr.arrayBuffer()));
   const pdf = new Blob(parts, { type: 'application/pdf' });
-  if (info.vis) {
+  let vj = null, vb = null;
+  if (info.vis) try { overlay(true, T, 'Foto per la ricerca…', 0.88); vj = await (await fetch(SITE_CAT + 'vis.json')).json(); vb = new Uint8Array(await (await fetch(SITE_CAT + 'vis.bin')).arrayBuffer()); } catch (e) { vj = null; }
+  overlay(true, T, 'Salvo il catalogo…', 0.94);
+  if (cur && cur.rows && cur.rows.length) {
+    try { const op = await idbGet('pdf'), ok = await idbGet('pdfKey'); if (!cur.example && op) { await idbSet('indexPrev', cur); await idbSet('pdfPrev', op); await idbSet('pdfKeyPrev', ok); } } catch (e) {}
+  }
+  // PDF first, then the index; if the phone is full the catalogue in use stays as it was
+  await idbSet('pdfKey', 0);
+  const pdfOk = await idbSet('pdf', pdf);
+  if (!pdfOk || !(await idbSet('index', idx))) {
+    const op = pdfOk && cur && !cur.example ? await idbGet('pdfPrev') : null;
+    const back = !pdfOk || (op && await idbSet('pdf', op));
+    await idbSet('pdfKey', back && cur ? cur.at || 0 : 0);
+    if (cur && !cur.example) { await idbDel('indexPrev'); await idbDel('pdfPrev'); await idbDel('pdfKeyPrev'); }
+    lsSet('catSkip', info.at); lsSet('catSkipT', Date.now() - 3 * 864e5 + 6 * 36e5);
+    overlay(false); toast('Memoria del telefono piena: libera spazio, riproverò a scaricare il catalogo nuovo tra qualche ora'); return false;
+  }
+  await idbSet('pdfKey', idx.at); await idbSet('meta', {});
+  if (vj) {
     try {
-      overlay(true, T, 'Foto per la ricerca…', 0.88);
       const om = await idbGet('vismeta'); if (om) { for (let c = 0; c < (om.chunks || 0); c++) await idbDel('vis:' + c); await idbSet('vismeta', null); }
-      const vj = await (await fetch(SITE_CAT + 'vis.json')).json(), vb = new Uint8Array(await (await fetch(SITE_CAT + 'vis.bin')).arrayBuffer());
       let chunks = 0;
       for (let k = 0; k < vj.items.length; k += 120) {
         const part = vj.items.slice(k, k + 120).map((it, j) => ({ p: it.p, b: it.b, rows: it.rows, e: vb.slice((k + j) * 1024, (k + j + 1) * 1024) }));
-        await idbSet('vis:' + chunks, part); chunks++;
+        if (!(await idbSet('vis:' + chunks, part))) throw new Error('full'); chunks++;
       }
       await idbSet('vismeta', { at: idx.at, chunks, next: vj.next });
     } catch (e) {}
   }
-  overlay(true, T, 'Salvo il catalogo…', 0.96);
-  if (!(await idbSet('pdf', pdf))) throw new Error('save');
-  await idbSet('index', idx); await idbSet('meta', {}); await idbSet('pdfKey', idx.at);
   overlay(false);
   return true;
 }
 (async function boot() {
   let hasCat = false; try { const c = await idbGet('index'); hasCat = !!(c && c.rows && c.rows.length && !c.example); } catch (e) {}
-  if (!hasCat) { try { if (await siteCatalog()) { location.reload(); return; } } catch (e) { overlay(false); } }
-  else setTimeout(() => siteCatalog().then(r => { if (r) location.reload(); }, () => overlay(false)), 2500);
+  const catFail = () => { overlay(false); toast('Download del catalogo non riuscito: riprovo alla prossima apertura'); };
+  if (!hasCat) { try { if (await siteCatalog()) { location.reload(); return; } } catch (e) { catFail(); } }
+  else setTimeout(() => siteCatalog().then(r => { if (r) location.reload(); }, catFail), 2500);
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}
   try {
     if (!(await idbGet('index'))) {
@@ -2419,7 +2446,7 @@ async function siteCatalog() {
   const idx = await idbGet('index');
   if (idx && idx.rows && idx.rows.length) { try { PRE = await idbGet('pre'); } catch (e) { PRE = null; } setIndex(idx, (await idbGet('meta')) || {}); warmPdf(); }
   const h = decodeURIComponent(location.hash.slice(1));
-  if (h) { const d = digitsOf(h); const i = INDEX.rows.findIndex(r => r.c === d); if (i >= 0) openRow(i, true); }
+  if (h) { const d = digitsOf(h); const i = bestRow(d); if (i >= 0) openRow(i, true); }
   if (window.claude && typeof window.claude.use === 'function') {
     try {
       [db, assets] = await Promise.all([window.claude.use('db'), window.claude.use('assets')]);
@@ -2539,7 +2566,11 @@ $('catBack').addEventListener('click', async () => {
   if (!b.classList.contains('sure')) { const p = await idbGet('indexPrev'); b.classList.add('sure'); b.textContent = 'Tocca di nuovo: torna a ' + ((p && p.name) || 'catalogo precedente'); return; }
   const [pi, pp, pk, ci, cp, ck] = await Promise.all(['indexPrev', 'pdfPrev', 'pdfKeyPrev', 'index', 'pdf', 'pdfKey'].map(idbGet));
   if (!pi || !pp) { toast('Catalogo precedente non trovato'); return; }
-  await idbSet('pdf', pp); await idbSet('index', pi); await idbSet('pdfKey', pk); await idbSet('meta', {});
+  const FULLB = () => toast('Memoria del telefono piena: libera spazio per tornare al catalogo precedente');
+  await idbSet('pdfKey', 0);
+  if (!(await idbSet('pdf', pp))) { await idbSet('pdfKey', ck); FULLB(); return; }
+  if (!(await idbSet('index', pi))) { await idbSet('pdfKey', cp && (await idbSet('pdf', cp)) ? ck : 0); FULLB(); return; }
+  await idbSet('pdfKey', pk); await idbSet('meta', {});
   // the two swap places, so it can be undone the same way
   if (ci && cp) { await idbSet('indexPrev', ci); await idbSet('pdfPrev', cp); await idbSet('pdfKeyPrev', ck); }
   toast('Torno al catalogo ' + (pi.name || 'precedente')); setTimeout(() => location.reload(), 900);
@@ -2607,7 +2638,7 @@ document.addEventListener('click', e => {
 // ---------- Preferiti page ----------
 function favPrice(r) { const p = (r.f || []).find(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)); return p ? p[1] : ''; }
 function favPageRender() {
-  const byCode = new Map(); INDEX.rows.forEach((r, i) => { if (!byCode.has(r.c)) byCode.set(r.c, i); });
+  const byCode = new Map(); INDEX.rows.forEach(r => { if (!byCode.has(r.c)) byCode.set(r.c, bestRow(r.c)); });
   const all = lsGet('fav', []).filter(c => byCode.has(c));
   const t = fold($('favQ').value).split(/[^a-z0-9]+/).filter(Boolean);
   const list = t.length ? all.filter(c => { const i = byCode.get(c); return t.every(w => (HAY[i] || '').includes(w) || c.replace(/\./g, '').includes(w)); }) : all;
@@ -2665,7 +2696,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 30, APP_ED = 'interno', APP_PF = 'pc', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 31, APP_ED = 'interno', APP_PF = 'pc', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti');
 let UPD = null;
@@ -2726,7 +2757,40 @@ const SAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 // · altri (other uses) · manut (maintenance, checks, expiry) · sapere (what to tell the customer).
 // Short entries are fine: a screw does not need a page.
 const FAM = [
-['dpi', /MASCHERIN|SEMIMASCHER|MASCHERA (ANTIPOLVERE|FFP)|FILTR[OI] (ANTIPOLVERE|PER MASCHER)|OCCHIAL[EI] (PROTETT|DI PROTEZ|DA LAVORO)|CUFFIE ANTIRUMOR|TUT[AE] (USA|PROTETT|VERNICIATOR)|GUANT/, ['10', '13', '31'], {
+['girevole', /GIUNTO (GIREVOLE|GIRA ?ANCORA)/, ["01"], { cosa: "Giunto girevole tra ancora e catena: lascia ruotare l'ancora senza attorcigliare la catena.", dove: "A prua, montato tra il fuso dell'ancora e l'ultima maglia della catena.", sapere: ["Il perno va bloccato e controllato periodicamente, come i grilli."] }],
+['musone', /^MUSONE/, ["01"], { cosa: "Musone di prua: sostiene l'ancora a riposo fuori dallo scafo e guida la catena durante salpata e filata.", dove: "A prua, fissato in coperta davanti al salpa-ancora.", sapere: ["Va fissato su una zona di coperta robusta, con viteria inox."] }],
+['comando-verricello', /RADIOCOMANDO|PULSANTIERA HRC/, ["01"], { cosa: "Comando a distanza per salpa-ancora ed eliche di manovra: trasmettitore senza fili con centralina ricevente, o pulsantiera a filo.", dove: "Il trasmettitore si tiene in mano o in tasca; la centralina ricevente si collega all'impianto del verricello o dell'elica di manovra.", sapere: ["La compatibilità e il numero di canali vanno scelti in base a quante utenze si vogliono comandare."] }],
+['motore-verricello', /^MOTORI? PER VERRICELL/, ["01"], { cosa: "Motore elettrico di ricambio per salpa-ancora e verricelli di tonneggio.", dove: "Sul verricello, di solito sotto coperta nel gavone dell'ancora.", sapere: ["Il motore deve essere quello previsto per il modello di verricello e per la tensione dell'impianto (12 o 24 V)."] }],
+['tagliacime', /TAGLIA ?CIME/, ["01"], { cosa: "Taglia cime a lama calda: taglia cime e nastri sintetici fondendo il capo, così non si sfilaccia.", dove: "In banchina, in officina e a bordo, per preparare cime, sagole e cinghie.", sapere: ["Funziona sulle fibre sintetiche che fondono con il calore; le fibre naturali non si sigillano.", "La lama resta calda per un po' dopo l'uso: si ripone solo quando si è raffreddata."] }],
+['fibbia', /FIBBI[AE]/, ["01"], { cosa: "Fibbia per bloccare e regolare cinghie e nastri.", dove: "Cinghie di fissaggio, teli, cuscinerie, borse e dotazioni di bordo.", sapere: ["Va scelta sulla larghezza della cinghia."] }],
+['segnaletica-imo', /SEGNALETICA NAVALE|SIMBOL[OI]GIA IMO/, ["07"], { cosa: "Cartelli adesivi con i simboli IMO che indicano a bordo dove si trovano le dotazioni di sicurezza e i punti di raccolta.", dove: "Sulle paratie, vicino a estintori, EPIRB, zattere, uscite e punti di raccolta.", sapere: ["La versione luminescente resta visibile per un po' anche quando manca la luce."] }],
+['miscelatore', /^MIXER PER SIKAFORCE/, ["10"], { cosa: "Miscelatore statico: si monta sulla cartuccia dell'adesivo bicomponente e mescola i due componenti mentre il prodotto esce.", dove: "Sulle cartucce SikaForce 436.", sapere: ["Se il lavoro si interrompe oltre il tempo utile del prodotto, il prodotto indurisce dentro e il miscelatore va cambiato."] }],
+['nastro-vinile', /NASTRO IN VINILE/, ["10"], { cosa: "Nastro adesivo in vinile (PVC) per uso generale: segnare, marcare, fasciare e proteggere.", dove: "In officina e a bordo: marcatura di cime, cavi e attrezzatura, segnalazioni e piccole protezioni.", sapere: ["Tiene meglio se la superficie è pulita, asciutta e senza grasso."] }],
+['foul-release', /FOULFREE|FOUL.?RELEASE/, ["10"], { cosa: "Rivestimento trasparente antivegetativo senza biocidi (foul-release): rende la superficie così liscia che gli organismi marini fanno fatica ad attaccarsi.", dove: "Sulle parti immerse indicate per ciascun prodotto." }],
+['deumidificatore', /DEUMIDIFICATOR|ASSORBIUMIDIT|CATTURAUMIDIT/, ["13"], { cosa: "Assorbiumidità: raccoglie l'umidità dell'aria e riduce condensa, muffa e cattivi odori negli spazi chiusi.", dove: "Cabine, gavoni, armadietti e bagni, soprattutto quando la barca resta chiusa." }],
+['mezzomarinaio', /KIT JAKE|\bJAKE\b|MEZZ[OI] ?MARINAI/, null, { cosa: "Mezzo marinaio o suo accessorio: asta con gancio per prendere cime, gavitelli e anelli di ormeggio.", dove: "A bordo, in pozzetto o in un gavone a portata di mano, e in banchina." }],
+['laccio-occhiali', /LACCI.*OCCHIAL/, ["43"], { cosa: "Laccio galleggiante per occhiali da sole o da vista: li tiene al collo e, se cadono in acqua, li fa restare a galla.", dove: "In barca e negli sport d'acqua." }],
+['bicicletta', /BICICLETT/, ["43"], { cosa: "Bicicletta pieghevole da tenere a bordo per muoversi a terra.", dove: "Si ripone piegata in un gavone o in pozzetto e si usa una volta a terra.", sapere: ["Dopo l'uso vicino al mare va sciacquata con acqua dolce e asciugata: il salino fa arrugginire catena e parti in acciaio."] }],
+['scooter-sub', /WATER SCOOTER|SEASCOOTER/, ["43"], { cosa: "Scooter subacqueo elettrico: traina chi nuota in superficie o in immersione.", dove: "Snorkeling e immersioni, partendo dalla barca o dalla spiaggia.", sapere: ["Va usato entro la profondità massima indicata dal produttore per il modello.", "Dopo l'uso in mare va sciacquato in acqua dolce."] }],
+['bombola-gas', /^CAMPINGAZ BOMBOL/, ["15"], { cosa: "Bombola di gas ricaricabile per fornelli, lampade e altri apparecchi a gas compatibili.", dove: "Cucina di bordo, pozzetto e campeggio.", sapere: ["A bordo la bombola va tenuta in un gavone ventilato verso l'esterno e lontano dal calore: il gas è più pesante dell'aria e, se perde, si raccoglie in basso."] }],
+['filtro-sfiato', /CARBONI ATTIVI|ACTIVE CARBON/, ["16", "22"], { cosa: "Filtro ai carboni attivi da montare sullo sfiato di un serbatoio: trattiene gli odori che escono dallo sfiato.", dove: "Sulla linea di sfiato del serbatoio delle acque nere, e per alcuni modelli anche delle acque grigie o del carburante.", sapere: ["Si monta sulla linea di sfiato il più in alto possibile, perché non ci arrivi liquido.", "Con il tempo i carboni si esauriscono e il filtro va sostituito."] }],
+['molla-gas', /MOLL[AE] A GAS/, ["16"], { cosa: "Molla a gas o suo supporto: aiuta ad aprire e tiene aperti portelli, gavoni e sedute.", dove: "Portelli di gavoni, boccaporti, sedute e coperchi.", sapere: ["La spinta si sceglie sul peso e sulla misura del portello: se è troppo bassa non lo tiene su, se è troppo alta lo fa sbattere e lo rende duro da chiudere."] }],
+['tergicristallo', /TERGICRISTALL/, ["16"], { cosa: "Tergicristallo o suo ricambio (motore, braccio, spazzola) per i vetri della barca.", dove: "Parabrezza e vetri della plancia.", sapere: ["L'asse del motore deve essere adatto allo spessore della paratia su cui si monta.", "Braccio e spazzola si scelgono compatibili con il motore e con la larghezza del vetro da pulire."] }],
+['tubolare', /BOCCOLA LATERALE|BOCCOLE A PARETE|^TUBO ALLUMINIO/, ["16"], { cosa: "Tubo in alluminio o boccola per costruire o riparare strutture tubolari a bordo, come candelieri, passerelle e telai.", dove: "Coperta, pozzetto e sovrastrutture.", sapere: ["Il diametro del tubo deve corrispondere a quello di boccole e attacchi.", "Inox e alluminio a contatto in ambiente marino si corrodono: conviene isolarli."] }],
+['scala-pontile', /DOCK LADDER|SCALA PER PONTIL/, ["16"], { cosa: "Scala fissa in acciaio inox per risalire dall'acqua su pontili e banchine.", dove: "Pontili, banchine e piscine.", sapere: ["Si fissa su una struttura solida con viteria inox.", "Deve scendere abbastanza sotto il pelo dell'acqua da poter risalire."] }],
+['carrello-trasporto', /CARRELLO PIEGHEVOLE/, ["16"], { cosa: "Carrello pieghevole per portare a mano bagagli, spesa e attrezzatura fino alla barca.", dove: "Banchina, pontile e marina.", sapere: ["Da chiuso occupa poco spazio e si ripone in un gavone.", "Non va caricato oltre la portata indicata dal produttore."] }],
+['pp-r', /TECH EVOLUTION|^EVOLUTION$/, ["19"], { cosa: "Tubo, raccordo o accessorio del sistema Bucchi Tech Evolution in polipropilene (PP-R): i pezzi si uniscono per polifusione, cioè saldatura a caldo nel bicchiere.", dove: "Impianti idraulici e di raffreddamento di bordo.", sapere: ["Si salda con il polifusore e la coppia di matrici del diametro del tubo: non si incolla e non si stringe con fascette."] }],
+['tubo-appiattibile', /FLATPOMP|APPIATTIBIL/, ["22"], { cosa: "Tubo in PVC appiattibile per la mandata in pressione di acqua e altri liquidi, per esempio all'uscita di una pompa.", dove: "Travasi, svuotamenti e lavori in cantiere o in banchina.", sapere: ["Lavora solo in mandata, in pressione: in aspirazione si schiaccia.", "Va svuotato e asciugato prima di arrotolarlo."] }],
+['supporto-fascette', /SUPPORTI PER FASCETT/, ["22"], { cosa: "Base su cui si fa passare la fascetta per fissare cavi e tubi lungo paratie e scafo.", dove: "Lungo i percorsi di cavi elettrici e tubi.", sapere: ["Le basi incollate evitano di forare; quelle a vite si fissano con viteria inox."] }],
+['portabatteria', /PORTABATTER/, ["25"], { cosa: "Cassetta portabatteria: contiene la batteria e la tiene ferma a bordo.", dove: "Vano batterie, gavoni e sala macchine.", sapere: ["La cassetta va fissata alla struttura con cinghie o viti, perché la batteria non si sposti con il moto ondoso.", "La misura si sceglie sull'ingombro della batteria."] }],
+['cornice', /^CORNICE.*BERKER/, ["25"], { cosa: "Cornice di finitura che si monta sopra interruttori e prese della stessa serie.", dove: "A parete o su pannello, in cabina e negli interni.", sapere: ["Cornice e frutti devono essere della stessa marca e serie, altrimenti non si montano insieme."] }],
+['fascettemarmitta', /FASCETTA PER MARMITT/, ["31"], { cosa: "Set di fascette di ricambio per le marmitte dei modelli indicati in tabella.", dove: "Sull'impianto di scarico del motore.", sapere: ["Va scelto il set corrispondente al modello di marmitta."] }],
+['presaaria', /PRES[AE] D'ARIA/, ["31"], { cosa: "Griglia di presa d'aria per ventilare un vano chiuso.", dove: "Su murate, paratie, cofani e gavoni, per il ricambio d'aria del vano motore o dei locali chiusi.", sapere: ["Le prese d'aria del vano motore non vanno mai ostruite."] }],
+['sfiato', /SFIAT[OI] (CARBURANTE|SERBATOIO)/, ["31"], { cosa: "Sfiato del serbatoio: fa uscire aria e vapori mentre il serbatoio si riempie e fa entrare aria mentre si svuota.", dove: "Sulla murata o sullo specchio di poppa, collegato al serbatoio con un tubo.", sapere: ["Uno sfiato ostruito non lascia entrare aria: il serbatoio non si svuota bene e, con il carburante, il motore può fermarsi.", "Il tubo dello sfiato non deve formare sacche dove si ferma il liquido."] }],
+['contatti', /OK CONTACT|PULISCI ?CONTATT|DETERGENTE PER CONTATT/, ["31"], { cosa: "Spray detergente per contatti elettrici: toglie sporco, polvere e residui di grasso.", dove: "Contatti, connettori, morsetti e interruttori dell'impianto elettrico di bordo.", sapere: ["Si usa con l'impianto spento e si ridà corrente solo quando il prodotto è evaporato del tutto."] }],
+['kitimpiombatura', /RIGGER BAG/, ["36"], { cosa: "Kit di attrezzi per impiombare e rifinire le cime, raccolti in una borsa da lavoro.", dove: "In officina, in banchina o a bordo, per lavori su cime e drizze.", sapere: ["Ogni tipo di cima ha la sua tecnica di impiombatura: conviene seguire le istruzioni del produttore della cima."] }],
+['anelloapribile', /^ANELLI APRIBILI/, ["36"], { cosa: "Anello apribile a spirale, tipo portachiavi.", dove: "Per chiavi, galleggianti portachiavi e piccoli accessori da tenere insieme." }],
+['dpi', /MASCHERIN|SEMIMASCHER|MASCHERA (ANTIPOLVERE|FFP)|FILTR[OI] (ANTIPOLVERE|PER MASCHER)|OCCHIAL[EI] (PROTETT|DI PROTEZ|DA LAVORO)|CUFFIE ANTIRUMOR|TUT[AE] (USA|PROTETT|VERNICIATOR)|GUANT|RESPIRATOR|ACCESSORI PER MASCHERE/, ['10', '13', '31'], {
   cosa: 'Protezione individuale per chi lavora: maschera, occhiali, guanti o tuta.',
   dove: 'Durante carteggiatura, verniciatura, uso di solventi e lavori di manutenzione.',
   quanto: 'Guanti e mascherine sono materiale di consumo: si vendono a confezione.',
@@ -2736,11 +2800,11 @@ const FAM = [
   dove: 'Torce, VHF portatili, luci di emergenza, telecomandi.',
   quanto: 'Conviene tenerne di scorta nei formati usati dalle dotazioni di bordo.',
   sapere: ['Si tengono all\'asciutto e si tolgono dagli apparecchi lasciati fermi a lungo, per evitare perdite di liquido.'] }],
-['coltello', /COLTELL|LAMA DA|TRONCHESE|CESOI|PINZA (MULTIUSO|UNIVERSALE)|UTENSIL/, ['36', '42', '43', '07', '31'], {
+['coltello', /COLTELL|LAMA DA|TRONCHESE|CESOI|PINZA (MULTIUSO|UNIVERSALE)|UTENSIL/, ['36', '42', '43', '07', '31', '25'], {
   cosa: 'Coltello o utensile da taglio.',
   uso: 'Dopo l\'uso in mare va sciacquato in acqua dolce.',
   sapere: ['Le versioni inox resistono meglio al salino ma vanno comunque sciacquate.'] }],
-['utensili', /PUNT[AE] |PUNTE |CHIAV[EI]|TRAPANO|AVVITATOR|SEGHETT|LEVIGATRIC|SMERIGLIATRIC|MULTIFUNZIONE|FRES[AE]|SCALPELL|PIALLETT|STRETTO|MARTELL|CACCIAVIT|GIRAVIT|SET UTENSIL|PINZ[AE]|TRONCHESIN|BRUGOL|CRICCHETT|BUSSOL[AE] CH|TAZZA/, ['10', '31', '02', '37'], {
+['utensili', /PUNT[AE] |PUNTE |CHIAV[EI]|TRAPANO|AVVITATOR|SEGHETT|LEVIGATRIC|SMERIGLIATRIC|MULTIFUNZIONE|FRES[AE]|SCALPELL|PIALLETT|STRETTO|MARTELL|CACCIAVIT|GIRAVIT|SET UTENSIL|PINZ[AE]|TRONCHESIN|BRUGOL|CRICCHETT|BUSSOL[AE] CH|TAZZA|TRONCHESI\b/, ['10', '31', '02', '37'], {
   cosa: 'Attrezzo da lavoro o punta per forare, tagliare, avvitare e smontare.',
   dove: 'In officina e a bordo, nella cassetta degli attrezzi.',
   quanto: 'Le punte e le lame sono materiale di consumo: conviene avere le misure più usate e qualche ricambio.',
@@ -2877,7 +2941,7 @@ const FAM = [
   uso: 'Si fa passare evitando spigoli vivi, si fissa con fascette e si termina con capicorda crimpati.',
   altri: 'Il cavo da banchina serve anche per alimentare utensili durante i lavori.',
   sapere: ['Per uso nautico sono preferibili conduttori stagnati.', 'Ogni linea va protetta con fusibile o interruttore alla partenza.'] }],
-['presa', /PRES[AE]\b(?! A MARE)|SPIN[AE]\b|PROLUNG|USB/, ['25'], {
+['presa', /PRES[AE]\b(?! A MARE)|SPIN[AE]\b|PROLUNG|USB|MENNEKES/, ['25'], {
   cosa: 'Presa, spina o prolunga per collegare apparecchi o la barca alla corrente.',
   dove: 'In cabina, in plancia o in coperta per l\'allacciamento di banchina.',
   quanto: 'Si sceglie su tensione e amperaggio del collegamento; in coperta serve la versione stagna con tappo.',
@@ -2936,7 +3000,7 @@ const FAM = [
   uso: 'Si lega al salvagente con una gassa e si stiva in modo che fili libera quando si lancia.',
   altri: 'Per issare segnali e bandiere, legature di servizio, cime di recupero, ritenute leggere e rimorchio del tender.',
   sapere: ['Il carico di rottura indicato è a sagola nuova e senza nodi.', 'La versione galleggiante si usa dove la cima non deve andare sott\'acqua.'] }],
-['cima', /CIM[AE]|TRECCI|CORD[AE]|SCOTT|DYNEEMA|SAGOL|GHERLIN|DRIZZ/, ['01', '36', '42', '07'], {
+['cima', /CIM[AE]|TRECCI|CORD[AE]|SCOTT|DYNEEMA|SAGOL|GHERLIN|DRIZZ|DOCKLINE/, ['01', '36', '42', '07'], {
   cosa: 'Cima per ormeggio, ancoraggio o manovra, secondo materiale e tipo di treccia.',
   dove: 'In coperta: ormeggi, cime di rispetto, scotte e drizze.',
   quanto: 'Il diametro cresce con la lunghezza della barca. Per gli ormeggi in genere si usano due cime di punta e due spring, più qualcuna di rispetto.',
@@ -3089,7 +3153,7 @@ const FAM = [
   uso: 'Si parte dalla grana più grossa e si scende per gradi, togliendo la polvere tra un passaggio e l\'altro.',
   altri: 'Gli stessi materiali servono per lavori su legno e metallo fuori dalla barca.',
   sapere: ['Il risultato di una verniciatura dipende soprattutto dalla preparazione.'] }],
-['detergente', /DETERGENT|SGRASSANT|PULITOR|SMACCHIATOR|SHAMPOO|CLEAN|DISINCROSTANT|ANTIMUFF|ACETO|BARNACLE|MAGIC|FULCRON/, ['13', '10'], {
+['detergente', /DETERGENT|SGRASSANT|PULITOR|SMACCHIATOR|SHAMPOO|CLEAN|DISINCROSTANT|ANTIMUFF|ACETO|BARNACLE|MAGIC|FULCRON|^FORZA 100/, ['13', '10'], {
   cosa: 'Prodotto per la pulizia e la cura della barca.',
   dove: 'Scafo, coperta, teak, gommone o interni, secondo il prodotto.',
   quanto: 'Molti sono concentrati e si diluiscono: una confezione rende parecchi lavaggi.',
@@ -3259,7 +3323,7 @@ const FAM = [
   uso: 'Si fissa su struttura robusta con viteria inox, sigillando i fori.',
   altri: 'La scaletta serve anche per il bagno e per rientrare dal tender.',
   sapere: ['Una scaletta che non arriva abbastanza sotto il livello dell\'acqua è inutile proprio quando serve.'] }],
-['tendalino', /TENDALIN|BIMIN|TEL[OI]\b|CAPPOTTIN|COPRIMOTOR|COPERTUR|PASSATOI|MANICHE A VENTO|SPRAY ?HOOD/, ['16'], {
+['tendalino', /TENDALIN|BIMIN|TEL[OI]\b|CAPP?OTTIN|COPRIMOTOR|COPERTUR|PASSATOI|MANICHE A VENTO|SPRAY ?HOOD/, ['16'], {
   cosa: 'Copertura: ripara dal sole o dalla pioggia oppure protegge barca e motore.',
   dove: 'Pozzetto, coperta, motore.',
   quanto: 'Si misurano la superficie da coprire e i punti di aggancio disponibili.',
@@ -3295,7 +3359,7 @@ const FAM = [
   uso: 'Al traino servono una cima adatta e una persona che guardi sempre chi è trainato.',
   altri: 'SUP e kayak servono anche per spostarsi dalla rada alla spiaggia.',
   sapere: ['In acqua vanno usati con aiuto al galleggiamento e nel rispetto delle distanze dalla costa.'] }],
-['abbigliamento', /GIACC|GILET|PANTALON|\bPOLO\b|SHIRT|MAGLIETT|SCARP[AE]\b|STIVAL|CAMICI|BERMUDA|\bPILE\b|SALOPETT|GUANT[OI]\b|CAPPELL|BERRETT|GONNA/, ['36', '44', '43', '07', '10'], {
+['abbigliamento', /GIACC|GILET|PANTALON|\bPOLO\b|SHIRT|MAGLIETT|SCARP[AE]\b|STIVAL|CAMICI|BERMUDA|\bPILE\b|SALOPETT|GUANT[OI]\b|CAPPELL|BERRETT|GONNA|SHORTS|GREMBIULE PROFESSIONALE/, ['36', '44', '43', '07', '10'], {
   cosa: 'Capo di abbigliamento.',
   dove: 'A bordo e nel tempo libero.',
   quanto: 'Si sceglie sulla taglia: conviene guardare la tabella taglie del produttore.',
@@ -3310,6 +3374,8 @@ const FAM = [
 // Verified products: figures taken one by one from the maker's own technical data sheet.
 // Each entry says where it comes from, and nothing here is estimated.
 const PROD = [
+  [/^BORSA LIROS RIGGER BAG/, { fonte: "catalogo cime LIROS 2026/27, pagina 85", dati: ["Kit da impiombatura professionale con gli attrezzi e gli accessori per lavorare tutte le cime LIROS da diporto.", "Dimensioni esterne della borsa 41 x 31 x 10 cm."] }],
+  [/^GRILLI LIROS SOFT SHACKLE/, { url: "https://www.liros.com/userdata/files/LIROS_rope_catalogue_2026_2027_eng___low_res.pdf#page=40", fonte: "catalogo cime LIROS 2026/27, pagina 40", dati: ["Grillo morbido interamente in Dyneema SK78: sostituisce i grilli metallici in coperta.", "A parità di carico di rottura pesa circa 10 volte meno di un grillo in acciaio.", "Si blocca da solo sotto carico e si riapre facilmente anche dopo carichi elevati, tirando il nastro LIROS che riporta il carico di rottura.", "Il carico di lavoro è il 50% del carico di rottura (fattore di sicurezza 2:1).", "Non è certificato per il sollevamento di carichi né per la sicurezza delle persone."] }],
   [/SCIROCCO 622 EXTRA/, { url: 'https://www.boeroyachtcoatings.com/wp-content/uploads/2026/05/Scirocco-622-Extra.pdf', fonte: 'scheda prodotto Boero YachtCoatings', dati: [
     'Resa teorica 8 m² al litro.',
     'Diluente Boero 703.',
@@ -3343,7 +3409,7 @@ const PROD = [
     'Resa teorica 8,3 m² al litro nei colori e 7,7 m² al litro nel bianco.',
     'Diluente Boero 703.',
     'Adatta ad acciaio, compositi e legno; sull\'alluminio serve prima un primer epossidico di almeno 300 micron.'] }],
-  [/BOEROGUARD/, { url: 'https://www.boeroyachtcoatings.com/wp-content/uploads/2025/11/Boeroguard.pdf', fonte: 'scheda tecnica Boeroguard', dati: [
+  [/BOEROGUARD(?! DUO)/, { url: 'https://www.boeroyachtcoatings.com/wp-content/uploads/2025/11/Boeroguard.pdf', fonte: 'scheda tecnica Boeroguard', dati: [
     'Resa teorica 3,8 m² al litro a 200 micron.',
     'Bicomponente, rapporto 4:1 in volume.',
     'Diluente Boero 693, massimo 10%.',
@@ -3384,7 +3450,7 @@ const PROD = [
     'Spessore consigliato 25 micron a secco per mano; di solito tre mani a spruzzo, qualche colore ne richiede di più.',
     'Diluenti Awlgrip T0001, T0002, T0003 o T0005.',
     'A 25 °C: mano successiva dopo almeno 30 minuti ed entro 24 ore.'] }],
-  [/MILLE NCT/, { url: 'https://www.hempel.com/it-it/api/Hempel/DataSheet/PDS/Download/71890/it-IT', fonte: 'scheda tecnica Hempel\'s Mille NCT', dati: [
+  [/MILLE NCT(?! 71880)/, { url: 'https://www.hempel.com/it-it/api/Hempel/DataSheet/PDS/Download/71890/it-IT', fonte: 'scheda tecnica Hempel\'s Mille NCT', dati: [
     'Resa teorica 14 m² al litro.',
     'Spessore consigliato 40 micron a secco per mano: due mani a pennello o rullo.',
     'Diluente Hempel 08080, fino al 5% a pennello o rullo.',
@@ -3819,6 +3885,10 @@ const REP_NOTE = {
 // Names that a family pattern catches but that are not that kind of product (accessories,
 // spare parts, tools sold next to it). They get no family sheet rather than a wrong one.
 const EXCL = {
+  presaaria: /CUFFIA/,
+  fibbia: /CINGHI[AE] DI FISSAGGIO/,
+  sub: /PER SUP\b/,
+  mezzomarinaio: /SPAZZOL/,
   abbigliamento: /ANTINFORTUN|SALDATOR|COPRISCARP|IMMERSION|PROTEZIONE|TYVEK|TYCHEM/,
   abrasivi: /PISTOL|SPATOL|SEGACC|\bLAME\b|TERMOSOFF|PLURIBALL|MULTICELL|CARTONE|\bFILM\b|SCROSTATOR|LANA DI|STUOIA|PENNELL|VASCHETTA|RULLIN|RULLO|RASCHIETT|SACCHI|INTERFACCIA|NASTRO|MASCHERATURA|ELMETT|CARTA IGIENICA|MICROBLU|COPERTURA|ANTISDRUCC|RACCORDO|TUBO/,
   ancora: /GALLEGGIANTE|\bBAG\b/,
@@ -3838,7 +3908,7 @@ const EXCL = {
   fascette: /COLLARE D|BASETTE|SUPPORTI/,
   ferramenta: /BIDET|FORCELLA|OBLO|MEZZO MARINAIO|ACCOSTO|BASE RETTANGOLARE|MANIGLI[AE] (DI POPPA|ABBATTIBILE|PER CRUSCOTTO)|GANCIO PER SCALETTE|DADO A MANIGLIA|PROFILO|ANGOLARE A|CANCELLETTO/,
   filtro: /CHIAVE|STAFF|IMBUTO|O-RING|COPERCHIO|CESTELL|RACCORDI|VALVOLA/,
-  grillo: /TRAPPE|SALPA TRAPPA|CARRELLO/,
+  grillo: /SOFT SHACKLE|TRAPPE|SALPA TRAPPA|CARRELLO/,
   guida: /OLIO/,
   interruttore: /MUSONE|STAFFA|GOMMINI|ETICHETTE|DOCCETTA|PANNELLO/,
   inverter: /GENERATOR/,
@@ -3854,16 +3924,16 @@ const EXCL = {
   resina: /POLISH|PASTA ABRASIVA|DILUENTE|\bLAMA\b|TESSUTO DI PROTEZIONE|COLORANTE|POMPE DOSATRICI|RULLINI/,
   riflettente: /\bLUCE\b|POSTER|ATOLLO/,
   sagola: /LANCIASAGOL/,
-  salvataggio: /\bLUCE\b|BORSA|RIARMO|BOMBOLETT|CONTENITORE|CUSTODIA|SUPPORTO|PORTA ?SALVAGENTE|PALO|DAN BUOY|MANOVERBOARD|GUINZAGLIO/,
+  salvataggio: /STAFFA|\bLUCE\b|BORSA|RIARMO|BOMBOLETT|CONTENITORE|CUSTODIA|SUPPORTO|PORTA ?SALVAGENTE|PALO|DAN BUOY|MANOVERBOARD|GUINZAGLIO/,
   scaletta: /GANCIO|SNODO|TAPPO|RETE|ATTACCO|RADIOCOMAND|KIT ELETTRONICA|BILANCINO|CANDELIERE PER|RICAMBI|ACCESSORI|SUPPORT|SOTTOBASETT|MOLLA|PULPIT/,
   'segnali-diurni': /SEGNALETICA|ADESIVI|TABELLA/,
   sentina: /ALLARME|SENSORE|PANNELLO|DISPLAY/,
   serbatoio: /TAPPO|KIT (ACQUA|MISCELATORE|PER SERBATOI)|RACCORDI|BOTOLA|TERMOSTATO|RESISTENZ|TUBO|SFIATO|ACCESSORI/,
-  sigillante: /PRIMER|DILUENTE|SPATOLA|PULITOR|SALVIETT|NASTRO|CLEANER|PISTOL|MIXER|\bFILM\b|RIMUOVI|CORDOLO|SISTEMA DI APPLICAZIONE|PROPSPEED|DISCHETTI|AIRBLOCK|\bLAME\b|\bCRC\b|SILICON OIL|TEAK OIL|SPATOLE/,
+  sigillante: /A CALDO|PRIMER|DILUENTE|SPATOLA|PULITOR|SALVIETT|NASTRO|CLEANER|PISTOL|MIXER|\bFILM\b|RIMUOVI|CORDOLO|SISTEMA DI APPLICAZIONE|PROPSPEED|DISCHETTI|AIRBLOCK|\bLAME\b|\bCRC\b|SILICON OIL|TEAK OIL|SPATOLE/,
   sport: /GONFIATORE/,
   strumento: /CAP HORIZON|METEO|E-RACING|BARIGO|GHIERE|GUARNIZIONE/,
   tavola: /COMPASSO|PROFILO/,
-  tendalino: /MANICHE A VENTO|PASSATOI|BARRE|\bASTE\b|PUNTONI|MANICHETTA|FORCELLA|ATTACCHI/,
+  tendalino: /TIRANTE|MANICHE A VENTO|PASSATOI|BARRE|\bASTE\b|PUNTONI|MANICHETTA|FORCELLA|ATTACCHI/,
   tubo: /SUPPORT|ADATTATORE|\bBASE\b|CAPPUCCIO|ALLUMINIO|\bINOX\b|QUADRO|RETTANGOLARE|TAGLIATUBI|GIUNTATUBI|PORTATUBO|BUSSOLA|SIGILLANTE|FASCETTE|OLIO|GRASSO|ARIA|AIR-TERM/,
   utensili: /CERNIER|FERMAPORTA|TAPPI|CHIAVETTA STOP|STACCO|LUCCHETT|PENNAREL|PLATORELL/,
   valvola: /POZZETTO|COLLETTORE|SCARICO A MARE|FILTRO|TUBO DOCCIA|FLESSIBILI|SALISCENDI|DOCCIA SOLARE|KIT DOCCETTA/,
@@ -3881,7 +3951,7 @@ const MATS = [
   [/INOX|AISI/, 'Acciaio inox: resiste bene in ambiente marino, meglio nelle qualità 316 rispetto alle 304.'],
   [/TITANIO/, 'Titanio: ottimo in acqua di mare, non si corrode, ma è costoso.'],
   [/ZINCAT|GALVANIZZAT/, 'Acciaio zincato: va bene per catene e usi pesanti, ma la zincatura si consuma e poi arrugginisce; in acqua salata ha vita più corta dell\'inox.'],
-  [/\bFERRO\b|ACCIAIO (?!INOX|INOSSIDABILE)/, 'Acciaio comune: non adatto all\'esposizione marina prolungata, arrugginisce e macchia; si usa solo dove è protetto o provvisorio.'],
+  [/\bFERRO\b(?! DI CAVALLO)|ACCIAIO (?!INOX|INOSSIDABILE)/, 'Acciaio comune: non adatto all\'esposizione marina prolungata, arrugginisce e macchia; si usa solo dove è protetto o provvisorio.'],
   [/OTTONE/, 'Ottone: adatto a interni e raccordi; in acqua di mare può perdere lo zinco e diventare fragile se non è di qualità marina.'],
   [/BRONZO/, 'Bronzo: molto usato per prese a mare e raccordi immersi, resiste bene all\'acqua salata.'],
   [/ALLUMINI/, 'Alluminio: leggero, ma a contatto con inox o rame in acqua salata si corrode: va isolato.'],
@@ -3893,7 +3963,7 @@ const MATS = [
   [/TEAK/, 'Teak: legno adatto all\'esterno grazie agli oli naturali; va curato ma non è obbligatorio trattarlo.'],
   [/CROMAT/, 'Metallo cromato: all\'esterno, con il tempo, la cromatura si può opacizzare.'],
   [/COMPOSIT|VETRORESIN/, 'Materiale composito: non si corrode e resiste bene all\'ambiente marino.'],
-  [/GOMMA|NEOPREN/, 'Gomma: buona tenuta, ma invecchia con il sole e con gli idrocarburi.'],
+  [/(?<!PORTA ?)GOMMA|NEOPREN/, 'Gomma: buona tenuta, ma invecchia con il sole e con gli idrocarburi.'],
 ];
 const DATI = [
   [/resa teorica[^.;]*|\bresa\b[^.;]*/i, 'Resa'], [/diluizione[^.;]*/i, 'Diluizione'],
@@ -4020,7 +4090,7 @@ const SCHEDE = [
   [/^BOERO DILUENTI PRO/, /P698/, 'https://www.boeroyachtcoatings.com/wp-content/uploads/2026/09/Thinner-Pro.pdf'],
   [/^BOERO DILUENTI PRO/, /P696/, 'https://www.boeroyachtcoatings.com/wp-content/uploads/2026/09/Thinner-Pro-Fast.pdf'],
   [/^SIKAFORCE 436 L25/, null, 'https://ita.sika.com/dms/getdocument.get/74701fb7-84f4-463f-ad0f-447cb179c4c9/sikaforce-436-l25.pdf'],
-  [/^ADESIVI SIGILLANTI SIKA$/, null, 'https://ita.sika.com/dam/dms/itgen/o/sikaflex_-591.pdf'],
+  [/^(ADESIVI SIGILLANTI SIKA|SIKAFLEX 591)$/, null, 'https://ita.sika.com/dam/dms/itgen/o/sikaflex_-591.pdf'],
   [/^SIKAFLEX 252/, null, 'https://ita.sika.com/dms/getdocument.get/cef46950-079b-46f2-b08b-a78c9c0454ac/sikaflex_-252.pdf'],
   [/^SIKAFLEX 296/, null, 'https://industry.sika.com/dam/dms/itgen/s/sikaflex_-296.pdf'],
   [/^SIKAFLEX 521/, null, 'https://ita.sika.com/dam/dms/itgen/m/sikaflex_-521_uv.pdf'],
@@ -4143,7 +4213,7 @@ function sections(e) {
   if (q.length) S.push(['Questo codice: ' + e.code, 'ul', q, 'tag']);
   if (e.varianti > 1) S.push(['Varianti', 'p', 'Di questo articolo ci sono ' + e.varianti + ' versioni' + (e.variantiCol ? ', che cambiano per ' + low(e.variantiCol) : '') + '. Le trovi nella pagina dell\'articolo, sotto «Varianti dello stesso articolo».', 'grid']);
   if (e.sapere.length) S.push(['Buono a sapersi', 'ul', e.sapere, 'chat']);
-  if (!e.known) S.push(['Informazioni', 'p', 'Per questo articolo non ci sono abbastanza informazioni certe oltre a quelle del catalogo. Qui sopra trovi solo i dati del catalogo stesso.', 'info']);
+  if (!e.known && !e.verif) S.push(['Informazioni', 'p', 'Per questo articolo non ci sono abbastanza informazioni certe oltre a quelle del catalogo. Qui sopra trovi solo i dati del catalogo stesso.', 'info']);
   return S;
 }
 
@@ -4463,8 +4533,10 @@ window.openRow = function (i) { const r = orig.apply(this, arguments); try { mou
 
 </script><script>
 // Novità 2.0 (build 26): ricerca a voce e "Forse cercavi…".
-/*LISTA{*/// Solo copia dipendenti: lista per il cliente (quantità e prezzi modificabili, invio come PDF o messaggio).
-/*}LISTA*/
+// Lista: in both copies. Employee copy: "Lista per il cliente" with editable prices and the Battagli header.
+// Customer copy (CLI = true): "Lista dei desideri" on a plain white sheet, no name or logo, catalogue prices only.
+const CLI = false;
+/*INT{*//*}INT*/
 // Tutto succede sul telefono: nessuna pagina esterna, nessun servizio online.
 (function () {
 'use strict';
@@ -4494,14 +4566,19 @@ css.textContent = `
 .nv-sugg .item .thumb { width: 64px; height: 64px; flex: none; }
 @media (max-width: 440px) { .nv-sugg .item .pg { display: none; } }
 body.nv-off-tabCam #tabCam, body.nv-off-micBtn #micBtn { display: none !important; }
-/*LISTA{*/body.nv-off-tabNumbers #tabNumbers { display: none !important; }
-body.nv-off-tabLista #tabLista, body.nv-off-tabLista #listAdd { display: none !important; }/*}LISTA*/
+/* short messages ("Aggiunto alla lista", "Codice copiato"…): a clean card in the theme colours, easy to read */
+#toast.toast { display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(440px, calc(100% - 32px)); background: var(--bg); color: var(--ink); border-radius: 14px; padding: 13px 16px 13px 14px; font-size: 15px; font-weight: 600; line-height: 1.35; text-align: left; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(13, 23, 38, .22); animation: nvToast .22s ease-out; }
+#toast.toast::before { content: ""; width: 4px; align-self: stretch; min-height: 20px; border-radius: 4px; background: var(--blue); flex: none; }
+#toast.toast[hidden] { display: none; }
+@keyframes nvToast { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/*INT{*/body.nv-off-tabNumbers #tabNumbers { display: none !important; }/*}INT*/
+body.nv-off-tabLista #tabLista, body.nv-off-tabLista #listAdd, body.nv-off-tabLista .nv-addw { display: none !important; }
 body[class*="nv-off-"] .tabbar .in { display: flex; gap: 2px; }
 body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-togs { display: grid; gap: 8px; }
 .nv-tog { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg); border-radius: 14px; box-shadow: var(--card-shadow); padding: 12px 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
 .nv-tog input { width: 24px; height: 24px; flex: none; accent-color: var(--blue); }
-/*LISTA{*/
+
 .tabbar .in[role="tablist"] { display: flex; padding-left: 4px; padding-right: 4px; gap: 2px; }
 .tabbar .tab { flex: 1 1 0; padding: 0 2px; }
 .tabbar #tabLista { flex-grow: .75; }
@@ -4532,6 +4609,7 @@ body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-price { display: inline-flex; align-items: center; gap: 4px; border-radius: 12px; box-shadow: 0 0 0 1px var(--line); padding: 0 10px; height: 36px; color: var(--muted); font-size: 14px; }
 .nv-price input { width: 82px; border: 0; background: transparent; font-size: 16px; font-weight: 700; color: var(--ink); text-align: right; padding: 0; }
 .nv-price.edited { box-shadow: 0 0 0 2px var(--blue); }
+.nv-price.ro { box-shadow: none; padding: 0 4px; color: var(--ink); font-weight: 700; font-size: 15px; }
 .nv-lrow .tot { margin-left: auto; font-weight: 800; font-size: 15px; white-space: nowrap; }
 .nv-lfield { display: grid; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 700; }
 .nv-lfield input, .nv-lfield textarea { font: inherit; font-size: 16px; font-weight: 500; color: var(--ink); background: var(--bg); border: 0; box-shadow: 0 0 0 1px var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; resize: vertical; }
@@ -4542,8 +4620,37 @@ body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-lact button.del { grid-column: 1 / -1; background: transparent; color: var(--red, #d33); padding: 8px; }
 .nv-lact button.del.sure { background: var(--red, #d33); color: #fff; }
 .nv-lhelp { color: var(--muted); font-size: 13.5px; margin: 0; }
+.nv-gone { gap: 6px; box-shadow: inset 0 0 0 1.5px var(--line); background: transparent; }
+.nv-gone > b { font-size: 15px; color: var(--ink); }
+.nv-gone > small { color: var(--muted); font-size: 13px; }
+.nv-gone .g { display: flex; align-items: center; justify-content: space-between; font-family: var(--f-code); font-weight: 600; color: var(--muted); }
+.nv-gone .g .x { border: 0; background: var(--blue-soft); color: var(--blue); border-radius: 999px; width: 32px; height: 32px; font-weight: 800; }
+/*INT{*/
+.nv-sbar { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+.nv-sbar .cur { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); overflow: hidden; }
+.nv-sbar .cur span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-sbar .cur small { color: var(--muted); font-weight: 600; font-size: 13px; }
+.nv-fold { width: 20px; height: 20px; flex: none; color: var(--blue); }
+.nv-sbtn { display: inline-flex; align-items: center; gap: 7px; flex: none; margin-left: auto; border: 0; border-radius: 999px; background: var(--blue-soft); color: var(--blue); padding: 9px 14px; font: inherit; font-size: 14px; font-weight: 800; }
+.nv-sbtn b { background: var(--blue); color: #fff; border-radius: 999px; min-width: 20px; height: 20px; padding: 0 6px; font-size: 12px; display: inline-grid; place-items: center; }
+[data-theme="spezia"] .nv-sbtn b { color: #111; }
+.nv-lact button.save { grid-column: 1 / -1; background: transparent; color: var(--blue); box-shadow: inset 0 0 0 1.5px var(--blue); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.nv-sform { grid-column: 1 / -1; display: grid; gap: 8px; background: var(--bg); border-radius: 16px; box-shadow: var(--card-shadow); padding: 12px; animation: nvAq .2s ease-out; }
+.nv-sform .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.nv-scard { display: flex; align-items: center; gap: 12px; background: var(--bg); border-radius: 16px; box-shadow: var(--card-shadow); padding: 14px; }
+.nv-scard .o { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; background: transparent; padding: 0; text-align: left; font: inherit; color: var(--ink); }
+.nv-scard .o .ic { width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--blue-soft); display: grid; place-items: center; }
+.nv-scard .o .ic svg { width: 24px; height: 24px; color: var(--blue); }
+.nv-scard .o span { min-width: 0; display: grid; gap: 2px; }
+.nv-scard .o b { font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-scard .o small { color: var(--muted); font-size: 13px; }
+.nv-scard .o em { font-style: normal; font-weight: 800; color: var(--ink); font-size: 14px; }
+.nv-scard.on { box-shadow: 0 0 0 2px var(--blue), var(--card-shadow); }
+.nv-scard .x { flex: none; border: 0; border-radius: 999px; background: transparent; color: var(--muted); height: 36px; min-width: 36px; padding: 0 10px; font: inherit; font-size: 14px; font-weight: 800; }
+.nv-scard .x.sure { background: var(--red, #d33); color: #fff; }
+/*}INT*/
 .chipbtn.nv-addl[aria-pressed="true"] { background: var(--blue); color: #fff; box-shadow: none; }
-[data-theme="spezia"] :is(#listPdf, .chipbtn.nv-addl[aria-pressed="true"]) { color: #111; }
+/*INT{*/[data-theme="spezia"] :is(#listPdf, .chipbtn.nv-addl[aria-pressed="true"]) { color: #111; }/*}INT*/
 .nv-addw, .bigcode span.nv-addw, .bigcode .nv-addw span { display: inline-flex; align-items: center; flex: none; font-family: var(--f-ui); font-size: 14px; letter-spacing: 0; line-height: normal; color: inherit; }
 .nv-addw.on .nv-addl { border-radius: 999px 0 0 999px; padding-right: 11px; }
 .nv-aq { display: inline-flex; align-items: center; flex: none; border-radius: 0 999px 999px 0; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--blue); overflow: hidden; height: 33px; transform-origin: left center; animation: nvAq .22s ease-out; }
@@ -4553,7 +4660,7 @@ body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-aq input { width: 38px; border: 0; background: transparent; text-align: center; font: inherit; font-size: 15px; font-weight: 800; color: var(--ink); padding: 0; }
 .nv-aq input:focus { outline: none; }
 @keyframes nvAq { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
-/*}LISTA*/
+
 `;
 document.head.appendChild(css);
 
@@ -4879,16 +4986,19 @@ document.addEventListener('click', e => {
 (function suggWatch() { const res = $$('results'); if (!res) return; new MutationObserver(suggest).observe(res, { childList: true }); })();
 window.__nvSugg = { codeSugg, textSugg, wordFix };
 
-/*LISTA{*/
-// ---------------------------------------------------------------- lista per il cliente (solo copia dipendenti)
+
+// ---------------------------------------------------------------- lista (dipendenti: per il cliente; clienti: lista dei desideri)
 const LKEY = 'listaCliente';
+const LTITLE = CLI ? 'Lista dei desideri' : 'Lista per il cliente';
 const lget = () => {
   let v = null; try { v = JSON.parse(localStorage.getItem(LKEY) || 'null'); } catch (e) {}
   if (!v || typeof v !== 'object' || !Array.isArray(v.items)) return { items: [], cliente: '', note: '', sc1: null, sc2: null };
   // a damaged entry is dropped, never shown as a broken row
   const items = v.items.filter(x => x && typeof x.c === 'string' && /^\d{8}$/.test(x.c)).map(x => ({ c: x.c, q: isFinite(+x.q) && +x.q > 0 ? +x.q : 1, p: x.p == null || !isFinite(+x.p) || +x.p < 0 ? null : +x.p }));
   const pc = x => x == null || x === '' || !isFinite(+x) || +x <= 0 ? null : Math.min(100, Math.round(+x * 100) / 100);
-  return { items, cliente: typeof v.cliente === 'string' ? v.cliente : '', note: typeof v.note === 'string' ? v.note : '', sc1: pc(v.sc1), sc2: pc(v.sc2) };
+  const o = { items, cliente: typeof v.cliente === 'string' ? v.cliente : '', note: typeof v.note === 'string' ? v.note : '', sc1: CLI ? null : pc(v.sc1), sc2: CLI ? null : pc(v.sc2) };  // customer copy: no discounts
+  if (!CLI && typeof v.sid === 'string') o.sid = v.sid;  // the saved list this one is (its changes are kept there too)
+  return o;
 };
 const lset = v => { try { localStorage.setItem(LKEY, JSON.stringify(v)); } catch (e) { say('Memoria del telefono piena: la lista non è stata salvata'); } };
 let L = lget();
@@ -4927,11 +5037,12 @@ const decUnit = u => /^(mt|mq|m|kg|lt)$/.test(u || '');
 const qfix = (q, u) => { q = +q; if (!isFinite(q) || q <= 0) return 1; q = decUnit(u) ? Math.round(q * 100) / 100 : Math.round(q); return Math.max(decUnit(u) ? 0.01 : 1, Math.min(99999, q)); };
 const qtxt = q => String(q).replace('.', ',');
 const parseEur = s => { s = String(s || '').replace(/[€\s]/g, ''); if (!s) return null; if (/,/.test(s)) s = s.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); const n = +s; return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null; };
-function lines() {
+function lines() { return linesOf(L.items); }
+function linesOf(items) {
   if (!ready()) return [];
-  return L.items.map(it => {
+  return items.map(it => {
     const i = rowOf(it.c); if (i < 0) return null;
-    const r = INDEX.rows[i], cat = priceOf(r), p = it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
+    const r = INDEX.rows[i], cat = priceOf(r), p = !CLI && it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
     return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100 };
   }).filter(Boolean);
 }
@@ -4964,7 +5075,7 @@ function badge() {
   if (!b) { b = document.createElement('b'); b.className = 'nv-badge'; t.appendChild(b); }
   b.textContent = n > 99 ? '99+' : n;
 }
-function save() { lset(L); badge(); }
+function save() { lset(L); badge();/*INT{*/ if (L.sid) folderSync();/*}INT*/ }
 function addCode(c) {
   L = lget();
   const x = L.items.find(y => y.c === c);
@@ -4987,43 +5098,124 @@ function removeCode(c) { L = lget(); L.items = L.items.filter(x => x.c !== c); s
 
 // the sheet
 const sheet = document.createElement('div');
-sheet.className = 'browse'; sheet.id = 'listSheet'; sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Lista per il cliente');
+sheet.className = 'browse'; sheet.id = 'listSheet'; sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', LTITLE);
 sheet.innerHTML = `<div class="bhead"><div class="wrap">
-  <div class="brow"><button class="backbtn" id="listClose" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Catalogo</button><h2>Lista per il cliente</h2></div>
+  <div class="brow"><button class="backbtn" id="listClose" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Catalogo</button><h2>${LTITLE}</h2></div>
   <p class="bsub" id="listSub"></p></div></div>
   <div class="wrap" style="padding-top:10px;padding-bottom:70px;display:grid;gap:10px" id="listBody"></div>`;
 document.body.appendChild(sheet);
 function listOpen() {
-  L = lget(); sheet.hidden = false; sheet.scrollTop = 0; document.body.style.overflow = 'hidden'; listRender();
+  L = lget();/*INT{*/ sview = false; sform = false;/*}INT*/ sheet.hidden = false; sheet.scrollTop = 0; document.body.style.overflow = 'hidden'; listRender();
 }
 function listClose() {
   sheet.hidden = true;
   if ($$('sheet').hidden && $$('camSheet').hidden && $$('browseSheet').hidden && (!$$('favSheet') || $$('favSheet').hidden)) document.body.style.overflow = '';
 }
 function listRender() {
-  // codes that are no longer in the loaded catalogue leave the list (they could not be shown or sent)
-  if (ready()) { const n = L.items.length; L.items = L.items.filter(x => rowOf(x.c) >= 0); if (L.items.length !== n) save(); }
+  // codes no longer in the loaded catalogue are never deleted by themselves: they are shown apart,
+  // left out of the total, the PDF and the message, and each one can be taken away with ✕
   const ls = lines(), body = $$('listBody');
+  const gone = ready() ? L.items.filter(x => rowOf(x.c) < 0) : [];
+  const goneHtml = gone.length ? `<div class="nv-lrow nv-gone"><b>${gone.length === 1 ? 'Questo articolo non è più nel catalogo' : 'Questi articoli non sono più nel catalogo'}</b><small>${gone.length === 1 ? 'Non conta nel totale e non viene inviato.' : 'Non contano nel totale e non vengono inviati.'}</small>${gone.map(x => `<div class="g"><span>${fmtCode(x.c)}</span><button class="x" type="button" data-ldel="${x.c}" aria-label="Togli dalla lista">✕</button></div>`).join('')}</div>` : '';
   $$('listSub').textContent = ls.length ? (ls.length === 1 ? '1 articolo' : ls.length + ' articoli') + (noPdf() ? ' · si invia come messaggio' : ' · si invia come PDF o come messaggio') : '';
+  /*INT{*/if (sview) { savedRender(); return; }/*}INT*/
+  const bar = CLI ? '' : sbarHtml();
   if (!ls.length) {
-    body.innerHTML = `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità e prezzo che puoi cambiare.</div>`;
+    body.innerHTML = bar + goneHtml + `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità${CLI ? ' e prezzo' : ' e prezzo che puoi cambiare'}.</div>`;
     return;
   }
-  body.innerHTML = `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`
-    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
+  body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
+    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null ? (CLI ? '<small>Prezzo da definire</small>' : '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>') : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
-      <label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>
-      <span class="tot" data-ltot>${l.tot == null ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('')
+      ${CLI ? `<span class="nv-price ro">${l.cat == null ? '' : '€ ' + eur(l.cat) + (l.unit ? '/' + l.unit : '')}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
+      <span class="tot" data-ltot>${l.tot == null ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
     + `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>
-    <div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
-    <div id="listDisc">${discHtml(ls)}</div>
-    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="Es. consegna, sconto, validità">${escH(L.note || '')}</textarea></label>
+    ${CLI ? '' : `<div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
+    <div id="listDisc">${discHtml(ls)}</div>`}
+    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="${CLI ? 'Es. promemoria' : 'Es. consegna, sconto, validità'}">${escH(L.note || '')}</textarea></label>
     ${noPdf() ? '' : `<label class="nv-lfoto"><input type="checkbox" id="listFoto"${fotoOn() ? ' checked' : ''}> Foto degli articoli nel PDF</label>`}
-    <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}<button type="button" class="del" id="listClear">Svuota la lista</button></div>
-    <p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`;
+    <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg" style="grid-column:1/-1">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}${CLI ? '' : saveBtnHtml()}${!CLI && L.sid ? '' : '<button type="button" class="del" id="listClear">Svuota la lista</button>'}</div>
+    ${CLI ? '' : `<p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`}`;
   try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
   if (!noPdf() && fotoOn()) setTimeout(() => warmImgs(lines()), 400);
 }
+/*INT{*/
+// ---- Liste salvate (copia dipendenti): ogni lista si salva con un nome, come una cartella, e se ne comincia un'altra.
+// Una lista riaperta resta collegata alla sua cartella: quello che cambi si salva anche lì.
+const SKEY = 'listeSalvate', SMAX = 200;
+let sview = false, sform = false;
+const FOLD = '<svg class="nv-fold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+function sget() {
+  let v = null; try { v = JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (e) {}
+  return Array.isArray(v) ? v.filter(f => f && typeof f.id === 'string' && typeof f.name === 'string' && f.d && Array.isArray(f.d.items)) : [];
+}
+function sset(a) { try { localStorage.setItem(SKEY, JSON.stringify(a)); return true; } catch (e) { say('Memoria del telefono piena: la lista non è stata salvata'); return false; } }
+// adds a saved list, keeping only the newest SMAX; false when the phone memory is full (nothing changes then)
+function spush(a, f, keep) {
+  a.push(f); a.sort((x, y) => y.at - x.at); const out = [];
+  while (a.length > SMAX) { const k = a.map(x => x.id).lastIndexOf(a.filter(x => x.id !== keep).pop().id); out.push(a.splice(k, 1)[0].name); }  // the oldest go, never the one being opened
+  return sset(a) && out;  // the names taken away (an empty list is still a success)
+}
+const snap = () => ({ items: L.items.map(x => ({ c: x.c, q: x.q, p: x.p })), cliente: L.cliente || '', note: L.note || '', sc1: L.sc1, sc2: L.sc2 });
+function folderSync() {
+  const a = sget(), f = a.find(x => x.id === L.sid);
+  if (!f) { delete L.sid; lset(L); return; }
+  f.d = snap(); f.at = Date.now(); sset(a);
+}
+const when = t => { const d = new Date(t); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const stot = d => { const ls = linesOf(d.items); return { n: ls.length, t: total(ls) }; };
+function sbarHtml() {
+  const n = sget().length, f = L.sid && sget().find(x => x.id === L.sid);
+  return `<div class="nv-sbar"><div class="cur">${f ? FOLD + `<span>${escH(f.name)}</span>` : ''}</div><button type="button" class="nv-sbtn" id="listSaved">${FOLD}Liste salvate${n ? ` <b>${n}</b>` : ''}</button></div>`;
+}
+function saveBtnHtml() {
+  if (sform) return `<div class="nv-sform"><label class="nv-lfield">Nome della lista<input id="listSName" type="text" maxlength="60" autocomplete="off" placeholder="Es. Rossi – barca Aurora" value="${escH((L.cliente || '').trim())}"></label><div class="row nv-lact"><button type="button" id="listSOk">Salva</button><button type="button" class="alt" id="listSNo">Annulla</button></div></div>`;
+  return L.sid ? `<button type="button" class="save" id="listNew">${FOLD}Fatto: comincia una nuova lista</button>` : `<button type="button" class="save" id="listSave">${FOLD}Salva la lista e fanne un'altra</button>`;
+}
+function savedRender() {
+  const a = sget().sort((x, y) => y.at - x.at), body = $$('listBody');
+  $$('listSub').textContent = a.length ? (a.length === 1 ? '1 lista salvata' : a.length + ' liste salvate') : '';
+  body.innerHTML = `<div class="nv-sbar"><button type="button" class="nv-sbtn" id="listBackCur" style="margin-left:0">‹ Lista attuale</button></div>`
+    + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'} · € ${eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
+      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità, prezzi, sconti e note.</div>`);
+}
+function sopen(id) {
+  const a = sget(), f = a.find(x => x.id === id); if (!f) return;
+  // the list being prepared is never lost: if it was not saved, it becomes a saved list of its own
+  let kept = false;
+  if (!L.sid && L.items.length) {
+    if (!spush(a, { id: 'l' + Date.now().toString(36), name: (L.cliente || '').trim() || 'Lista del ' + when(Date.now()), at: Date.now(), d: snap() }, id)) { say('Memoria piena: la lista che stai facendo non si può salvare, quindi resta aperta'); return; }
+    kept = true;
+  }
+  L = { items: f.d.items.map(x => ({ c: x.c, q: x.q, p: x.p })), cliente: f.d.cliente || '', note: f.d.note || '', sc1: f.d.sc1 == null ? null : f.d.sc1, sc2: f.d.sc2 == null ? null : f.d.sc2, sid: f.id };
+  lset(L); L = lget(); badge(); sview = false; sform = false; listRender(); sheet.scrollTop = 0;
+  if (kept) say('La lista che stavi facendo è nelle liste salvate');
+}
+sheet.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('#listSaved')) { sview = true; sform = false; listRender(); sheet.scrollTop = 0; return; }
+  if (t.closest('#listBackCur')) { sview = false; listRender(); sheet.scrollTop = 0; return; }
+  if (t.closest('#listSave')) { sform = true; listRender(); const i = $$('listSName'); if (i) { i.scrollIntoView({ block: 'center' }); i.focus(); i.select(); } return; }
+  if (t.closest('#listSNo')) { sform = false; listRender(); return; }
+  if (t.closest('#listSOk')) {
+    const name = ($$('listSName').value || '').trim() || (L.cliente || '').trim() || 'Lista del ' + when(Date.now());
+    const gone = spush(sget(), { id: 'l' + Date.now().toString(36), name, at: Date.now(), d: snap() }); if (!gone) return;
+    sform = false; L = { items: [], cliente: '', note: '', sc1: null, sc2: null }; save(); listRender(); sheet.scrollTop = 0;
+    say('Salvata in Liste salvate: ' + name + (gone.length ? ' (si tengono al massimo ' + SMAX + ' liste: tolta la più vecchia, ' + gone.join(', ') + ')' : '')); return;
+  }
+  if (t.closest('#listNew')) { L = { items: [], cliente: '', note: '', sc1: null, sc2: null }; save(); listRender(); sheet.scrollTop = 0; say('Lista salvata. Ora puoi farne una nuova'); return; }
+  const o = t.closest('[data-sopen]'); if (o) { sopen(o.dataset.sopen); return; }
+  const d = t.closest('[data-sdel]');
+  if (d) {
+    if (!d.classList.contains('sure')) { d.classList.add('sure'); d.textContent = 'Elimina'; setTimeout(() => { if (d.isConnected) { d.classList.remove('sure'); d.textContent = '✕'; } }, 3500); return; }
+    const id = d.dataset.sdel; sset(sget().filter(x => x.id !== id));
+    // the open list deleted: it goes away completely, it never comes back as a list to save
+    if (L.sid === id) { L = { items: [], cliente: '', note: '', sc1: null, sc2: null }; lset(L); badge(); }
+    savedRender(); say('Lista eliminata'); return;
+  }
+});
+sheet.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'listSName') { e.preventDefault(); $$('listSOk').click(); } });
+/*}INT*/
 function rowUpdate(el) {
   const c = el.dataset.lc, it = L.items.find(x => x.c === c); if (!it) return;
   const ls = lines(), l = ls.find(x => x.c === c); if (!l) return;
@@ -5098,7 +5290,7 @@ document.addEventListener('click', e => {
   }
   const b = e.target.closest('[data-ladd]'); if (!b) return;
   const c = b.dataset.ladd, q = addCode(c); b.setAttribute('aria-pressed', 'true'); b.textContent = '✓ In lista'; aqShow(c, q);
-  say(q > 1 ? 'Nella lista: quantità ' + qtxt(q) : 'Aggiunto alla lista per il cliente');
+  say(q > 1 ? 'Nella lista: quantità ' + qtxt(q) : CLI ? 'Aggiunto alla lista' : 'Aggiunto alla lista per il cliente');
 });
 // quantity typed by hand: "2,5" only for metres/kg; pieces whole numbers; a wrong value goes back to the saved one
 document.addEventListener('input', e => {
@@ -5115,8 +5307,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ha
 // ---- what is sent: only code, description, quantity and price. No page numbers, price letters or internal data.
 function today() { const d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
 function msgText(ls) {
-  const out = ['*Battagli Marine Hardware* – Lista articoli ' + today()];
-  if ((L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
+  const out = [CLI ? '*Lista articoli* ' + today() : '*Battagli Marine Hardware* – Lista articoli ' + today()];
+  if (!CLI && (L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
   out.push('');
   for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ' + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + ' = € ' + eur(l.tot)));
   const dl = discOut(ls);
@@ -5125,7 +5317,7 @@ function msgText(ls) {
   if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
   return out.join('\n');
 }
-function fileName() { const d = new Date(); return 'Lista-Battagli-' + ((L.cliente || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'cliente') + '-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf'; }
+function fileName() { const d = new Date(); return CLI ? 'Lista-articoli-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf' : 'Lista-Battagli-' + ((L.cliente || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'cliente') + '-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf'; }
 
 // ---- a small PDF writer: A4, Helvetica, euro sign and accented letters (WinAnsi)
 const HW = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584, 761, 556, 0, 222, 556, 333, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 222, 222, 333, 333, 350, 556, 1000, 333, 1000, 500, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 260, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 556, 537, 278, 333, 333, 365, 556, 834, 834, 834, 611, 667, 667, 667, 667, 667, 667, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 500, 556, 556, 556, 556, 278, 278, 278, 278, 556, 556, 556, 556, 556, 556, 556, 584, 611, 556, 556, 556, 556, 500, 556, 500], HB = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584, 761, 556, 0, 278, 556, 500, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 278, 278, 500, 500, 350, 556, 1000, 333, 1000, 556, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 280, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 611, 556, 278, 333, 333, 365, 556, 834, 834, 834, 611, 722, 722, 722, 722, 722, 722, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 556, 556, 556, 556, 556, 278, 278, 278, 278, 611, 611, 611, 611, 611, 611, 611, 584, 611, 611, 611, 611, 611, 556, 611, 556], W1252 = {8364: 128, 8218: 130, 402: 131, 8222: 132, 8230: 133, 8224: 134, 8225: 135, 710: 136, 8240: 137, 352: 138, 8249: 139, 338: 140, 381: 142, 8216: 145, 8217: 146, 8220: 147, 8221: 148, 8226: 149, 8211: 150, 8212: 151, 732: 152, 8482: 153, 353: 154, 8250: 155, 339: 156, 382: 158, 376: 159};
@@ -5188,12 +5380,15 @@ function buildPdf(ls) {
   const imgs = [], used = [];
   const head = first => {
     if (first) {
+      // customer copy: a plain white sheet, only "Lista articoli" and the date
+      if (CLI) { txt(M, PH - M - 16, 'Lista articoli', 15, true); txt(PW - M, PH - M - 16, today(), 10, false, true, true); y = PH - M - 40; }
+      else {
       txt(M, PH - M - 16, 'Battagli Marine Hardware', 17, true);
       txt(PW - M, PH - M - 16, today(), 10, false, true, true);
       txt(M, PH - M - 34, 'Lista articoli', 12, false, false, true);
-      y = PH - M - 54;
-      if ((L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
-    } else { txt(M, PH - M - 12, 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
+      y = PH - M - 54; }
+      if (!CLI && (L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
+    } else { txt(M, PH - M - 12, CLI ? 'Lista articoli (segue)' : 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
     txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true);
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
@@ -5250,7 +5445,7 @@ function buildPdf(ls) {
   for (let k = 1; k < objs.length; k++) { off[k] = out.length; out += k + ' 0 obj\n' + objs[k] + '\nendobj\n'; }
   const xref = out.length;
   out += 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n' + off.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
-  out += 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R /Info << /Title ' + pstr(enc('Lista articoli Battagli')) + ' /Producer (Battagli Catalogo) >> >>\nstartxref\n' + xref + '\n%%EOF\n';
+  out += 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R /Info << /Title ' + pstr(enc(CLI ? 'Lista articoli' : 'Lista articoli Battagli')) + (CLI ? '' : ' /Producer (Battagli Catalogo)') + ' >> >>\nstartxref\n' + xref + '\n%%EOF\n';
   const bytes = new Uint8Array(out.length); for (let k = 0; k < out.length; k++) bytes[k] = out.charCodeAt(k) & 255;
   return bytes;
 }
@@ -5271,7 +5466,7 @@ async function sendPdf() {
   // Android app: the PDF is saved in Download/Battagli, then the phone's share sheet opens with the list as text
   // new Android app (2.1): the real PDF goes straight to WhatsApp, mail...
   if (A && typeof A.sharePdf === 'function') {
-    let ok = false; try { ok = A.sharePdf(name, b64(bytes), 'Lista articoli Battagli'); } catch (e) {}
+    let ok = false; try { ok = A.sharePdf(name, b64(bytes), CLI ? 'Lista articoli' : 'Lista articoli Battagli'); } catch (e) {}
     if (ok) return;
   }
   if (A) {
@@ -5283,7 +5478,7 @@ async function sendPdf() {
   }
   const file = (() => { try { return new File([bytes], name, { type: 'application/pdf' }); } catch (e) { return null; } })();
   if (file && navigator.canShare && navigator.share && !isElectron) {
-    try { if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Lista articoli Battagli' }); return; } }
+    try { if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: CLI ? 'Lista articoli' : 'Lista articoli Battagli' }); return; } }
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' })); a.download = name;
@@ -5303,11 +5498,11 @@ async function copyText(text) {
   say(ok ? 'Lista copiata: incollala su WhatsApp o nella mail' : 'Non riesco a copiare la lista');
 }
 window.__lista = { add: addCode, remove: removeCode, lines, msgText, open: listOpen, close: listClose };
-/*}LISTA*/
+
 
 // Settings: each person chooses which sections stay in the bottom bar (kept on this device, updates do not change it)
 (function tabChoice() {
-  const ALL = [['micBtn', 'Microfono (ricerca a voce)'], ['tabCam', 'Cerca foto']/*LISTA{*/, ['tabNumbers', 'Numeri utili'], ['tabLista', 'Lista per il cliente']/*}LISTA*/];  // the customer copy only has Cerca foto
+  const ALL = [['micBtn', 'Microfono (ricerca a voce)'], ['tabCam', 'Cerca foto']/*INT{*/, ['tabNumbers', 'Numeri utili']/*}INT*/, ['tabLista', CLI ? 'Lista dei desideri' : 'Lista per il cliente']];  // employee-only sections are stripped from the customer copy
   const here = ALL.filter(([id]) => { const el = $$(id); return el && getComputedStyle(el).display !== 'none'; });
   const set = $$('viewSettings'), share = $$('shareSec');
   if (!here.length || !set) return;
