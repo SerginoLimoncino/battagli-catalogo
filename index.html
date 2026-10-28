@@ -3360,7 +3360,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 26, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 27, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti');
 let UPD = null;
@@ -5155,6 +5155,687 @@ if (typeof window.search === 'function') { const S0 = window.search; window.sear
 window.VelaInfo = { explain, sections, open, mount, openSheet };
 const orig = window.openRow;
 window.openRow = function (i) { const r = orig.apply(this, arguments); try { mount(i); } catch (err) { console.warn('info', err); } return r; };
+})();
+
+</script><script>
+// Novità 2.0 (build 26): ricerca a voce e "Forse cercavi…".
+/*LISTA{*/// Solo copia dipendenti: lista per il cliente (quantità e prezzi modificabili, invio come PDF o messaggio).
+/*}LISTA*/
+// Tutto succede sul telefono: nessuna pagina esterna, nessun servizio online.
+(function () {
+'use strict';
+const ED = (typeof APP_ED !== 'undefined' && APP_ED) || 'interno', PF = (typeof APP_PF !== 'undefined' && APP_PF) || 'web';
+const $$ = id => document.getElementById(id);
+const escH = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const say = t => { try { toast(t); } catch (e) {} };
+const ready = () => typeof INDEX !== 'undefined' && INDEX && INDEX.rows && !INDEX.example;
+
+const css = document.createElement('style');
+css.textContent = `
+.micbtn { color: var(--blue); }
+.micbtn svg { width: 22px; height: 22px; }
+.micbtn[aria-pressed="true"] { color: #fff; background: var(--red, #d33); border-radius: 999px; }
+.nv-voice { display: flex; align-items: center; gap: 10px; margin: 8px 0 0; padding: 10px 12px; border-radius: 14px; background: var(--bg); box-shadow: var(--card-shadow); font-size: 14px; color: var(--ink); }
+.nv-voice i { width: 10px; height: 10px; border-radius: 50%; background: var(--red, #d33); flex: none; animation: nvpulse 1s ease-in-out infinite; }
+.nv-voice span { flex: 1; min-width: 0; }
+.nv-voice small { display: block; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-voice button { border: 0; background: var(--blue-soft); color: var(--blue); border-radius: 999px; padding: 10px 14px; font-weight: 700; font-size: 13px; }
+@keyframes nvpulse { 50% { opacity: .35; } }
+.nv-sugg { margin-top: 16px; text-align: left; }
+.nv-sugg > p { margin: 0 0 8px; color: var(--ink); font-weight: 800; font-size: 15px; }
+.nv-sugg .nv-fix { display: inline-flex; border: 0; background: var(--blue-soft); color: var(--blue); border-radius: 999px; padding: 8px 14px; font-weight: 800; font-size: 15px; margin: 0 0 10px; }
+.nv-sugg .list { display: grid; gap: 8px; margin: 0 -12px; }
+.nv-sugg .item { color: var(--ink); text-align: left; }
+.nv-sugg .item .thumb { width: 64px; height: 64px; flex: none; }
+@media (max-width: 440px) { .nv-sugg .item .pg { display: none; } }
+/*LISTA{*/
+.tabbar .in[role="tablist"] { display: flex; padding-left: 4px; padding-right: 4px; gap: 2px; }
+.tabbar .tab { flex: 1 1 0; padding: 0 2px; }
+.tabbar #tabLista { flex-grow: .75; }
+.tabbar #tabSettings { flex-grow: 1.3; }
+.tabbar .tab span { letter-spacing: -.3px; }
+@media (max-width: 400px) { .tabbar .tab span { font-size: 11px; } }
+@media (max-width: 350px) { .tabbar .tab span { font-size: 10px; letter-spacing: -.4px; } }
+.tab .nv-badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red, #d33); color: #fff; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; }
+#tabLista { position: relative; }
+.nv-lrow { background: var(--bg); border-radius: 16px; box-shadow: var(--card-shadow); padding: 12px; display: grid; gap: 8px; }
+.nv-lrow .top { display: flex; gap: 10px; align-items: flex-start; }
+.nv-lrow .top .t { flex: 1; min-width: 0; border: 0; background: none; text-align: left; padding: 0; color: var(--ink); }
+.nv-lrow .top .t b { display: block; font-family: var(--f-mono, monospace); font-size: 14px; color: var(--blue); }
+.nv-lrow .top .t span { display: block; font-size: 14px; line-height: 1.3; }
+.nv-lrow .top .t small { display: block; font-size: 12.5px; color: var(--muted); }
+.nv-lrow .x { border: 0; background: var(--soft, #eef2f7); color: var(--muted); width: 36px; height: 36px; border-radius: 50%; font-size: 15px; flex: none; }
+.nv-lrow .nums { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.nv-step { display: inline-flex; align-items: center; border-radius: 999px; box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
+.nv-step button { border: 0; background: transparent; color: var(--blue); width: 36px; height: 36px; font-size: 20px; font-weight: 800; }
+.nv-step input { width: 46px; border: 0; background: transparent; text-align: center; font-size: 16px; font-weight: 700; color: var(--ink); padding: 0; }
+.nv-price { display: inline-flex; align-items: center; gap: 4px; border-radius: 12px; box-shadow: 0 0 0 1px var(--line); padding: 0 10px; height: 36px; color: var(--muted); font-size: 14px; }
+.nv-price input { width: 82px; border: 0; background: transparent; font-size: 16px; font-weight: 700; color: var(--ink); text-align: right; padding: 0; }
+.nv-price.edited { box-shadow: 0 0 0 2px var(--blue); }
+.nv-lrow .tot { margin-left: auto; font-weight: 800; font-size: 15px; white-space: nowrap; }
+.nv-lfield { display: grid; gap: 4px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.nv-lfield input, .nv-lfield textarea { font: inherit; font-size: 16px; font-weight: 500; color: var(--ink); background: var(--bg); border: 0; box-shadow: 0 0 0 1px var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; resize: vertical; }
+.nv-ltotal { display: flex; justify-content: space-between; align-items: baseline; font-size: 18px; font-weight: 800; padding: 4px 4px 0; }
+.nv-lact { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.nv-lact button { border: 0; border-radius: 14px; padding: 13px 10px; font-size: 15px; font-weight: 800; background: var(--blue); color: #fff; }
+.nv-lact button.alt { background: var(--blue-soft); color: var(--blue); }
+.nv-lact button.del { grid-column: 1 / -1; background: transparent; color: var(--red, #d33); padding: 8px; }
+.nv-lact button.del.sure { background: var(--red, #d33); color: #fff; }
+.nv-lhelp { color: var(--muted); font-size: 13.5px; margin: 0; }
+.chipbtn.nv-addl[aria-pressed="true"] { background: var(--blue); color: #fff; box-shadow: none; }
+[data-theme="spezia"] :is(#listPdf, .chipbtn.nv-addl[aria-pressed="true"]) { color: #111; }
+/*}LISTA*/
+`;
+document.head.appendChild(css);
+
+// ---------------------------------------------------------------- ricerca a voce
+// Parole dette a voce -> testo da cercare: "otto" -> 8, "dieci punto zero tre due zero" -> 10.0320, "otto per venti" -> 8x20.
+const UNI = { zero: 0, uno: 1, un: 1, una: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6, sette: 7, otto: 8, nove: 9, dieci: 10, undici: 11, dodici: 12, tredici: 13, quattordici: 14, quindici: 15, sedici: 16, diciassette: 17, diciotto: 18, diciannove: 19 };
+const TEN = { venti: 20, trenta: 30, quaranta: 40, cinquanta: 50, sessanta: 60, settanta: 70, ottanta: 80, novanta: 90 };
+function itNum(w) {
+  // "ventotto", "centoventi", "duemila": the whole word must be a number, or null
+  if (!w) return null;
+  w = w.replace(/[éè]/g, 'e');
+  if (!/^[a-z]+$/.test(w)) return null;
+  if (w in UNI) return UNI[w];
+  const unit = s => s === '' ? 0 : (s in UNI && UNI[s] < 10 ? UNI[s] : null);
+  const sub100 = s => {
+    if (s === '') return 0;
+    if (s in UNI) return UNI[s];
+    for (const [t, v] of Object.entries(TEN)) {
+      for (const p of [t, t.slice(0, -1)]) if (s.startsWith(p)) { const u = s.slice(p.length); if (p !== t && !/^[ou]/.test(u)) continue; const n = unit(u); if (n != null) return v + n; }
+    }
+    return null;
+  };
+  const sub1000 = s => {
+    const k = s.indexOf('cento');
+    if (k < 0) return sub100(s);
+    const h = s.slice(0, k), rest = s.slice(k + 5);
+    const hv = h === '' ? 1 : (h in UNI && UNI[h] > 1 && UNI[h] < 10 ? UNI[h] : null);
+    // "centotto", "centottanta": the o of cento is shared with otto/ottanta
+    const rv = sub100(/^tt/.test(rest) ? 'o' + rest : rest);
+    return hv == null || rv == null ? null : hv * 100 + rv;
+  };
+  let m = w.match(/^(.*?)(mille|mila)(.*)$/);
+  if (m) {
+    const th = m[2] === 'mille' ? (m[1] === '' ? 1 : null) : sub1000(m[1]);
+    const r = sub1000(m[3]);
+    return th == null || r == null || (m[2] === 'mila' && th < 2) ? null : th * 1000 + r;
+  }
+  return sub1000(w);
+}
+const ART = new Set(['un', 'una', 'uno']);
+const numTok = w => w != null && ((!ART.has(w) && itNum(w) != null) || /^\d/.test(w));
+function voiceText(raw) {
+  let t = String(raw || '').toLowerCase().replace(/[!?;:"“”]/g, ' ')
+    .replace(/(\d{2})\s*[-/]\s*(\d{4})\s*[-/]\s*(\d{2})/g, '$1.$2.$3')
+    .replace(/(\d)\s*[,.]\s*(?=\d)/g, a => a.replace(/\s+/g, ''));
+  const toks = t.split(/\s+/).filter(Boolean).map(w => w.replace(/^[,.]+|[,.]+$/g, '')).filter(Boolean);
+  const out = [];
+  for (let i = 0; i < toks.length; i++) {
+    const w = toks[i], prev = out[out.length - 1], next = toks[i + 1];
+    // "un grillo" stays words; "zero uno", "uno punto zero…", "uno e mezzo" are numbers
+    if (ART.has(w)) { out.push(prev != null && /^[\d.,]+$/.test(prev) || numTok(next) || next === 'punto' || next === 'virgola' ? '1' : w); continue; }
+    const n = itNum(w);
+    if (n != null) { out.push(String(n)); continue; }
+    if ((w === 'punto' || w === 'virgola') && prev != null && /\d$/.test(prev) && (numTok(next) || ART.has(next))) { out.push(w === 'punto' ? '.' : ','); continue; }
+    if (w === 'per' && prev != null && /^\d+([.,]\d+)?$/.test(prev) && numTok(next) && !(next === 'cento' && i + 2 === toks.length)) { out.push('x'); continue; }
+    out.push({ millimetri: 'mm', millimetro: 'mm', centimetri: 'cm', centimetro: 'cm', metri: 'mt', metro: 'mt' }[w] || w);
+  }
+  // "codice 01 0004 03", "cerca grillo": the command word is not part of what is searched
+  while (out.length > 1 && /^(codice|articolo|cerca|cercami|trova|trovami|il|lo|la)$/.test(out[0])) out.shift();
+  // glue "10 . 0320 . 02" and "8 x 20" back together
+  const parts = out.join(' ').replace(/(\d) ?([.,]) ?(?=\d)/g, '$1$2').replace(/(\d) x (?=\d)/g, '$1x').split(' ');
+  // a code said in pieces ("zero uno zero zero…", "01 0004 03") becomes one number; "mille duecento" does not
+  const res = [];
+  for (let i = 0; i < parts.length;) {
+    let j = i; while (j < parts.length && /^[\d.]+$/.test(parts[j]) && /\d/.test(parts[j])) j++;
+    if (j - i >= 2) {
+      const run = parts.slice(i, j), dg = run.join('').replace(/\D/g, '').length;
+      const single = run.every(x => /^\d$/.test(x));
+      const all = run.join('').replace(/\D/g, '');
+      if ((single && dg >= 4) || (dg >= 7 && dg <= 8 && (/^0/.test(run[0]) || /^\d\d?$/.test(run[0]) || run.some(x => x.includes('.')) || knownCode(all)))) { res.push(run.join('')); i = j; continue; }
+    }
+    if (j > i) { res.push(...parts.slice(i, j)); i = j; } else { res.push(parts[i]); i++; }
+  }
+  // a whole code wins over the words around it ("… zero tre grazie")
+  const code = res.find(x => /^[\d.]+$/.test(x) && /^\d{7,8}$/.test(x.replace(/\./g, '')));
+  return (code || res.join(' ')).trim();
+}
+function knownCode(d) { try { return rowOf(d) >= 0 || (d.length === 7 && rowOf('0' + d) >= 0); } catch (e) { return false; } }
+function codeLike(s) { const n = s.replace(/\D/g, '').length; return /^[\d.]+$/.test(s) && (n >= 6 || (n >= 4 && /^0/.test(s)) || /^\d\d\.\d/.test(s)); }
+function putQuery(s) {
+  const q = $$('q'), qd = $$('qd'); if (!q || !qd) return;
+  voicePut = true; try { return putQuery0(s, q, qd); } finally { voicePut = false; }
+}
+function putQuery0(s, q, qd) {
+  if (codeLike(s)) {
+    // a code read without its first zero ("uno punto zero zero zero quattro…") still finds the article
+    const d = s.replace(/\D/g, '');
+    if (d.length === 7 && ready() && !INDEX.rows.some(r => r.c.startsWith(d)) && INDEX.rows.some(r => r.c === '0' + d)) s = '0' + d;
+    q.value = s; qd.value = ''; q.dispatchEvent(new Event('input', { bubbles: true }));
+  } else { qd.value = s; if (q.value && /^[\d.\s]*$/.test(q.value)) q.value = ''; qd.dispatchEvent(new Event('input', { bubbles: true })); }
+  try { if (typeof showView === 'function' && $$('viewSearch') && $$('viewSearch').hidden) showView('search'); } catch (e) {}
+  return s;
+}
+window.__voiceText = voiceText; window.__voicePut = t => putQuery(voiceText(t));
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const isElectron = /electron/i.test(navigator.userAgent || '');
+// the browser can listen by itself only on iPhone/web; the Android app and the PC program use the keyboard's microphone
+let canListen = !!SR && PF === 'web' && !isElectron;
+const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+let rec = null, vbar = null;
+function vbarShow(main, sub) {
+  if (!vbar) {
+    vbar = document.createElement('div'); vbar.className = 'nv-voice'; vbar.id = 'nvVoice';
+    vbar.innerHTML = '<i></i><span><b></b><small></small></span><button type="button">Stop</button>';
+    vbar.querySelector('button').onclick = () => voiceStop(true);
+    const f = $$('searchForm'); f.parentNode.insertBefore(vbar, f.nextSibling);
+  }
+  vbar.hidden = false; vbar.querySelector('i').hidden = !rec;
+  vbar.querySelector('b').textContent = main; vbar.querySelector('small').textContent = sub || '';
+  vbar.querySelector('button').textContent = rec ? 'Stop' : 'Ok';
+}
+function vbarHide() { if (vbar) vbar.hidden = true; }
+let vHideT = 0;
+function keyboardHint() {
+  rec = null; const b = $$('micBtn'); if (b) b.setAttribute('aria-pressed', 'false');
+  const qd = $$('qd'); if (qd) { qd.focus(); try { qd.select(); } catch (e) {} }
+  const touch = 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+  vbarShow(PF === 'pc' || !touch ? (/Mac/i.test(navigator.platform || '') ? 'Avvia la dettatura del Mac e parla' : 'Premi Windows + H e parla') : 'Tocca il microfono sulla tastiera e parla', 'Poi trovo l\'articolo da solo');
+  clearTimeout(vHideT); vHideT = setTimeout(vbarHide, 7000);
+  kbUntil = Date.now() + 90000; kbBig = false; kbLen = qd ? qd.value.length : 0;
+}
+// What the keyboard's microphone writes ("zero uno punto zero zero zero quattro…", "Grillo inox da otto") is read
+// like a spoken search too, but only after the mic button was used: typed searches stay exactly as typed.
+let kbUntil = 0, kbT = 0, kbLen = 0, kbBig = false;
+function kbDictation() {
+  clearTimeout(kbT);
+  const qd = $$('qd'); if (!qd) return;
+  // dictation writes whole words at once; typing by hand adds one letter at a time and is never rewritten mid-word
+  const grow = qd.value.length - kbLen; kbLen = qd.value.length; if (grow >= 2) kbBig = true;
+  if (Date.now() > kbUntil || voicePut) return;
+  kbT = setTimeout(() => {
+    if (Date.now() > kbUntil || !(kbBig || /\s$/.test(qd.value))) return;
+    const v = qd.value, c = voiceText(v);
+    if (!c || c === v.toLowerCase().replace(/\s+/g, ' ').trim()) return;
+    kbUntil = Date.now() + 90000; kbBig = false;
+    // a code said in groups with pauses ("zero uno" … "zero zero zero quattro" … "zero tre"): its digits wait in Descrizione until it is complete
+    if (codeLike(c) && c.replace(/\D/g, '').length < 7 && !/\./.test(c)) { voicePut = true; try { qd.value = c; qd.dispatchEvent(new Event('input', { bubbles: true })); } finally { voicePut = false; } kbLen = qd.value.length; return; }
+    putQuery(c); kbLen = qd.value.length;
+  }, 700);
+}
+function voiceStop(user) {
+  if (rec) { const r = rec; rec = null; try { user ? r.stop() : r.abort(); } catch (e) {} }
+  const b = $$('micBtn'); if (b) b.setAttribute('aria-pressed', 'false');
+  if (user) vbarHide();
+}
+function voiceStart() {
+  if (rec) { voiceStop(true); return; }
+  if (!canListen) { keyboardHint(); return; }
+  let r;
+  try { r = new SR(); } catch (e) { canListen = false; keyboardHint(); return; }
+  r.lang = 'it-IT'; r.interimResults = true; r.maxAlternatives = 1; r.continuous = false;
+  let finalText = '', lastInterim = '', got = false, safeT = 0;
+  r.onresult = ev => {
+    let interim = ''; finalText = '';
+    for (let k = 0; k < ev.results.length; k++) { const x = ev.results[k]; if (x.isFinal) finalText += x[0].transcript; else interim += x[0].transcript; }
+    if (interim) lastInterim = interim;
+    got = true; if (rec === r) vbarShow('Ti ascolto…', finalText || interim);
+  };
+  r.onerror = ev => {
+    if (rec !== r) return;
+    const e = ev && ev.error;
+    if (e === 'not-allowed' || e === 'service-not-allowed' || e === 'network' || e === 'audio-capture') { canListen = false; keyboardHint(); return; }
+    voiceStop(false); vbarShow(e === 'no-speech' ? 'Non ho sentito niente: tocca il microfono e riprova' : 'Non ho capito: riprova', ''); clearTimeout(vHideT); vHideT = setTimeout(vbarHide, 3500);
+  };
+  r.onend = () => {
+    clearTimeout(safeT);
+    if (!finalText && lastInterim && rec === r) finalText = lastInterim;
+    if (rec !== r && !finalText) return;
+    const was = rec === r; rec = null; const b = $$('micBtn'); if (b) b.setAttribute('aria-pressed', 'false');
+    const s = voiceText(finalText);
+    if (s) { vbarShow('Ho cercato: ' + putQuery(s), ''); clearTimeout(vHideT); vHideT = setTimeout(vbarHide, 2500); }
+    else if (was) { vbarShow(got ? 'Non ho capito: riprova' : 'Non ho sentito niente: tocca il microfono e riprova', ''); clearTimeout(vHideT); vHideT = setTimeout(vbarHide, 3500); }
+  };
+  rec = r;
+  try { r.start(); } catch (e) { rec = null; canListen = false; keyboardHint(); return; }
+  const b = $$('micBtn'); if (b) b.setAttribute('aria-pressed', 'true');
+  // a recognizer that never answers must not leave the mic "on"
+  safeT = setTimeout(() => { if (rec === r) { try { r.stop(); } catch (e) {} setTimeout(() => { if (rec === r) { voiceStop(false); vbarShow('Non ho sentito niente: tocca il microfono e riprova', ''); clearTimeout(vHideT); vHideT = setTimeout(vbarHide, 3500); } }, 1500); } }, 15000);
+  clearTimeout(vHideT); vbarShow('Ti ascolto…', 'Di\' il nome o il codice, es. "grillo inox da 8"');
+}
+let voicePut = false;
+for (const id of ['q', 'qd']) { const el = $$(id); if (el) el.addEventListener('input', () => { if (!voicePut && !rec && vbar && !vbar.hidden) vbarHide(); if (id === 'qd') kbDictation(); }); }
+{ const qd = $$('qd'); if (qd) qd.addEventListener('blur', () => { setTimeout(() => { if (document.activeElement !== qd && document.activeElement !== $$('micBtn')) { clearTimeout(kbT); kbUntil = 0; } }, 1500); }); }
+(function micMount() {
+  const qd = $$('qd'); if (!qd || $$('micBtn')) return;
+  qd.insertAdjacentHTML('afterend', '<button class="iconbtn micbtn" id="micBtn" type="button" aria-pressed="false" aria-label="Cerca a voce">' + MIC + '</button>');
+  $$('micBtn').addEventListener('click', e => { e.preventDefault(); voiceStart(); });
+})();
+
+// ---------------------------------------------------------------- "Forse cercavi…"
+// When a search finds nothing: the codes one digit away from the one typed, or the catalogue words closest to the ones written.
+function dist(a, b, k) {
+  // Damerau (adjacent swap) edit distance, early stop above k
+  const n = a.length, m = b.length; if (Math.abs(n - m) > k) return k + 1;
+  let p2 = null, p1 = Array.from({ length: m + 1 }, (_, j) => j);
+  for (let i = 1; i <= n; i++) {
+    const cur = [i]; let mn = i;
+    for (let j = 1; j <= m; j++) {
+      let v = Math.min(p1[j] + 1, cur[j - 1] + 1, p1[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (p2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, p2[j - 2] + 1);
+      cur[j] = v; if (v < mn) mn = v;
+    }
+    if (mn > k) return k + 1; p2 = p1; p1 = cur;
+  }
+  return p1[m];
+}
+let CODES = null, CODES_AT = null, CMAP = null;
+function codeList() {
+  if (CODES_AT !== INDEX) { CODES_AT = INDEX; CMAP = new Map(); INDEX.rows.forEach((r, i) => { if (!CMAP.has(r.c)) CMAP.set(r.c, i); }); CODES = [...CMAP]; }
+  return CODES;
+}
+const rowOf = c => { codeList(); const i = CMAP.get(c); return i == null ? -1 : i; };
+// The suggestions are computed in small slices, so typing never waits for them; a newer query stops the old work.
+const tick = () => new Promise(r => setTimeout(r, 0));
+let T0 = 0; const due = () => { const t = performance.now(); if (t - T0 > 8) { T0 = t; return true; } return false; };
+async function codeSugg(d, alive) {
+  if (d.length < 4) return [];
+  const k = d.length >= 7 ? 2 : 1, out = [], list = codeList();
+  for (let n = 0; n < list.length; n++) {
+    if (!(n & 127) && due()) { await tick(); T0 = performance.now(); if (alive && !alive()) return null; }
+    const c = list[n][0];
+    let v = dist(d, c.slice(0, d.length), k);
+    if (d.length >= 7 && d.length !== c.length) v = Math.min(v, dist(d, c, k));
+    if (v <= k) out.push([v, c, list[n][1]]);
+  }
+  const pre = c => { let n = 0; while (n < d.length && c[n] === d[n]) n++; return n; };
+  out.sort((a, b) => a[0] - b[0] || pre(b[1]) - pre(a[1]) || a[1].localeCompare(b[1]));
+  return out.slice(0, 8).map(x => x[2]);
+}
+async function wordFix(t, alive) {
+  if (t.length < 3 || /^\d/.test(t) || typeof VOCAB === 'undefined' || !VOCAB) return null;
+  const k = t.length <= 4 ? 1 : 2; let best = null, n = 0;
+  for (const [w, rs] of VOCAB) {
+    if (!(++n & 127) && due()) { await tick(); T0 = performance.now(); if (alive && !alive()) return null; }
+    if (w.length < 3 || Math.abs(w.length - t.length) > k || /\d/.test(w)) continue;
+    const v = dist(t, w, k); if (v > k) continue;
+    const sc = v * 1000 - Math.min(rs.length, 999) - (w[0] === t[0] ? 500 : 0);
+    if (!best || sc < best[0]) best = [sc, w];
+  }
+  return best && best[1];
+}
+async function textSugg(q, qd, alive) {
+  const raw = (qd + ' ' + (/[a-z]/i.test(q) ? q : '')).trim(); if (!raw) return null;
+  const toks = words(normText(raw)).filter(t => !STOP.has(t)).slice(0, 8); if (!toks.length) return null;
+  let changed = false; const fixed = [];
+  for (const t of toks) {
+    if (/^\d/.test(t) || matchWord(t).size) { fixed.push(t); continue; }
+    const f = await wordFix(t, alive); if (alive && !alive()) return null;
+    if (f && f !== t) { changed = true; fixed.push(f); } else fixed.push(t);
+  }
+  if (!changed) return null;
+  const phrase = fixed.join(' ');
+  const res = window.search(/[a-z]/i.test(q) ? '' : q, phrase);
+  const list = res && res.list && res.list.length ? res.list : (window.search('', phrase).list || []);
+  return list.length ? { phrase, list: list.slice(0, 6) } : null;
+}
+function itemHtml(i) {
+  const r = INDEX.rows[i], b = INDEX.blocks[r.b] || {};
+  return `<button class="item" type="button" data-i="${i}"><span class="thumb" data-thumb="${i}"></span><span class="itxt"><span class="code">${fmtCode(r.c)}</span><span class="t">${escH(b.t || 'Articolo')}</span>${rowSummary(r) ? `<span class="v">${escH(rowSummary(r))}</span>` : ''}</span><span class="pg">pag. ${r.p}</span></button>`;
+}
+let suggT = 0, suggN = 0;
+function suggest() {
+  const res = $$('results'), em = res && res.querySelector(':scope > .empty');
+  if (!em || em.querySelector('.nv-sugg') || !ready()) return;
+  const q = $$('q').value, qd = $$('qd').value, key = q + '|' + qd, my = ++suggN;
+  const alive = () => my === suggN && em.isConnected && $$('q').value + '|' + $$('qd').value === key;
+  clearTimeout(suggT);
+  suggT = setTimeout(async () => {
+    if (!alive()) return;
+    let html = '';
+    try {
+      const d = /[a-z]/i.test(q) ? '' : digitsOf(q);
+      const t = await textSugg(q, qd, alive); if (!alive()) return;
+      if (t) html = `<p>Forse cercavi:</p><button class="nv-fix" type="button" data-nvfix="${escH(t.phrase)}">${escH(t.phrase)}</button><div class="list">${t.list.map(itemHtml).join('')}</div>`;
+      else if (d && !qd.trim()) { const l = await codeSugg(d, alive); if (!alive()) return; if (l && l.length) html = `<p>Forse cercavi uno di questi codici:</p><div class="list">${l.map(itemHtml).join('')}</div>`; }
+    } catch (e) { console.warn('sugg', e); }
+    if (!html || !alive() || em.querySelector('.nv-sugg')) return;
+    const box = document.createElement('div'); box.className = 'nv-sugg'; box.innerHTML = html; em.appendChild(box);
+    try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
+  }, 300);
+}
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-nvfix]'); if (!f) return;
+  const qd = $$('qd'), q = $$('q'); qd.value = f.dataset.nvfix; if (/[a-z]/i.test(q.value)) q.value = '';
+  qd.dispatchEvent(new Event('input', { bubbles: true }));
+});
+(function suggWatch() { const res = $$('results'); if (!res) return; new MutationObserver(suggest).observe(res, { childList: true }); })();
+window.__nvSugg = { codeSugg, textSugg, wordFix };
+
+/*LISTA{*/
+// ---------------------------------------------------------------- lista per il cliente (solo copia dipendenti)
+const LKEY = 'listaCliente';
+const lget = () => {
+  let v = null; try { v = JSON.parse(localStorage.getItem(LKEY) || 'null'); } catch (e) {}
+  if (!v || typeof v !== 'object' || !Array.isArray(v.items)) return { items: [], cliente: '', note: '' };
+  // a damaged entry is dropped, never shown as a broken row
+  const items = v.items.filter(x => x && typeof x.c === 'string' && /^\d{8}$/.test(x.c)).map(x => ({ c: x.c, q: isFinite(+x.q) && +x.q > 0 ? +x.q : 1, p: x.p == null || !isFinite(+x.p) || +x.p < 0 ? null : +x.p }));
+  return { items, cliente: typeof v.cliente === 'string' ? v.cliente : '', note: typeof v.note === 'string' ? v.note : '' };
+};
+const lset = v => { try { localStorage.setItem(LKEY, JSON.stringify(v)); } catch (e) { say('Memoria del telefono piena: la lista non è stata salvata'); } };
+let L = lget();
+function priceOf(r) {
+  const p = (r.f || []).find(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)); if (!p) return null;
+  const m = p[1].match(/(\d{1,3}(?:\.\d{3})+|\d+),(\d{2})/); if (!m) return null;
+  return +(m[1].replace(/\./g, '') + '.' + m[2]);
+}
+function unitOf(r) { const p = (r.f || []).find(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)); const m = p && p[0].match(/prezzo\s*(mt|mq|pz|kg|lt|m)\b/i); return m ? m[1].toLowerCase() : ''; }
+function descOf(r) {
+  const t = famTitle(r);
+  const parts = (r.f || []).filter(([k, v]) => v && !/prezz|rif\.|kit montaggio/i.test(k) && !/\d,\d{2}\s*[A-Z]?$/.test(v)).slice(0, 3).map(([k, v]) => {
+    k = (k || '').trim(); v = String(v).trim();
+    if (!k || /^(tipo|descrizione|modello|misura|colore|size|dimensioni|art\.?|articolo)$/i.test(k)) return v;
+    // "diametro (mm)" + "10" -> "diametro 10 mm"
+    const u = k.match(/^(.*?)\s*\(([^)]+)\)$/);
+    if (u && /^[\d.,x/ ]+$/.test(v)) return u[1] + ' ' + v + ' ' + u[2];
+    if (u && v.toLowerCase().endsWith(u[2].toLowerCase())) return u[1] + ' ' + v;
+    return k + ' ' + v;
+  });
+  let s = t + (parts.length ? ' – ' + parts.join(', ') : '');
+  // what the price is for, as the catalogue says it ("prezzo per conf 6pz", "prezzo CF"), so a pack price is never read as one piece
+  const pk = [];
+  for (const [k0, v0] of r.f || []) {
+    const k = String(k0 || '').trim(), v = String(v0 || '').trim();
+    if (!/^prezz/i.test(k)) continue;
+    if (v && !/\d,\d{2}/.test(v)) pk.push(k + ' ' + v);
+    else if (!/^prezzo\s*(mt|mq|pz|kg|lt|m)?$/i.test(k)) pk.push(k);
+  }
+  if (pk.length) s += ' (' + pk.join(', ') + ')';
+  return s.replace(/\s+/g, ' ').trim();
+}
+const eur = n => { if (n == null || !isFinite(n)) return ''; const [a, b] = Math.abs(n).toFixed(2).split('.'); return (n < 0 ? '-' : '') + a.replace(/\B(?=(\d{3})+$)/g, '.') + ',' + b; };
+// quantities: whole pieces, or decimals (2,5) for articles sold by the metre, kilo or litre
+const decUnit = u => /^(mt|mq|m|kg|lt)$/.test(u || '');
+const qfix = (q, u) => { q = +q; if (!isFinite(q) || q <= 0) return 1; q = decUnit(u) ? Math.round(q * 100) / 100 : Math.round(q); return Math.max(decUnit(u) ? 0.01 : 1, Math.min(99999, q)); };
+const qtxt = q => String(q).replace('.', ',');
+const parseEur = s => { s = String(s || '').replace(/[€\s]/g, ''); if (!s) return null; if (/,/.test(s)) s = s.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); const n = +s; return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null; };
+function lines() {
+  if (!ready()) return [];
+  return L.items.map(it => {
+    const i = rowOf(it.c); if (i < 0) return null;
+    const r = INDEX.rows[i], cat = priceOf(r), p = it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
+    return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100 };
+  }).filter(Boolean);
+}
+const total = ls => Math.round(ls.reduce((s, l) => s + (l.tot || 0), 0) * 100) / 100;
+const inList = c => L.items.some(x => x.c === c);
+function badge() {
+  const t = $$('tabLista'); if (!t) return;
+  let b = t.querySelector('.nv-badge'); const n = ready() ? L.items.filter(x => rowOf(x.c) >= 0).length : L.items.length;
+  if (!n) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('b'); b.className = 'nv-badge'; t.appendChild(b); }
+  b.textContent = n > 99 ? '99+' : n;
+}
+function save() { lset(L); badge(); }
+function addCode(c) {
+  L = lget();
+  const x = L.items.find(y => y.c === c);
+  if (x) x.q = Math.min(99999, (+x.q || 1) + 1); else L.items.push({ c, q: 1, p: null });
+  save(); return x ? x.q : 1;
+}
+function removeCode(c) { L = lget(); L.items = L.items.filter(x => x.c !== c); save(); }
+
+// tab in the bottom bar
+(function tabMount() {
+  const bar = document.querySelector('.tabbar .in'), set = $$('tabSettings'); if (!bar || $$('tabLista')) return;
+  set.insertAdjacentHTML('beforebegin', '<button class="tab" type="button" role="tab" id="tabLista" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M8 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2"/><path d="M9 11h6M9 15h4"/></svg><span>Lista</span></button>');
+  $$('tabLista').addEventListener('click', listOpen);
+  badge();
+})();
+
+// the sheet
+const sheet = document.createElement('div');
+sheet.className = 'browse'; sheet.id = 'listSheet'; sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Lista per il cliente');
+sheet.innerHTML = `<div class="bhead"><div class="wrap">
+  <div class="brow"><button class="backbtn" id="listClose" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Catalogo</button><h2>Lista per il cliente</h2></div>
+  <p class="bsub" id="listSub"></p></div></div>
+  <div class="wrap" style="padding-top:10px;padding-bottom:70px;display:grid;gap:10px" id="listBody"></div>`;
+document.body.appendChild(sheet);
+function listOpen() {
+  L = lget(); sheet.hidden = false; sheet.scrollTop = 0; document.body.style.overflow = 'hidden'; listRender();
+}
+function listClose() {
+  sheet.hidden = true;
+  if ($$('sheet').hidden && $$('camSheet').hidden && $$('browseSheet').hidden && (!$$('favSheet') || $$('favSheet').hidden)) document.body.style.overflow = '';
+}
+function listRender() {
+  // codes that are no longer in the loaded catalogue leave the list (they could not be shown or sent)
+  if (ready()) { const n = L.items.length; L.items = L.items.filter(x => rowOf(x.c) >= 0); if (L.items.length !== n) save(); }
+  const ls = lines(), body = $$('listBody');
+  $$('listSub').textContent = ls.length ? (ls.length === 1 ? '1 articolo' : ls.length + ' articoli') + ' · si invia come PDF o come messaggio' : '';
+  if (!ls.length) {
+    body.innerHTML = `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità e prezzo che puoi cambiare.</div>`;
+    return;
+  }
+  body.innerHTML = `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`
+    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
+      <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
+      <label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>
+      <span class="tot" data-ltot>${l.tot == null ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('')
+    + `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>
+    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="Es. consegna, sconto, validità">${escH(L.note || '')}</textarea></label>
+    <div class="nv-lact"><button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button><button type="button" class="del" id="listClear">Svuota la lista</button></div>
+    <p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`;
+  try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
+}
+function rowUpdate(el) {
+  const c = el.dataset.lc, it = L.items.find(x => x.c === c); if (!it) return;
+  const ls = lines(), l = ls.find(x => x.c === c); if (!l) return;
+  el.querySelector('[data-ltot]').textContent = l.tot == null ? '' : '€ ' + eur(l.tot);
+  el.querySelector('.nv-price').classList.toggle('edited', it.p != null && it.p !== l.cat);
+  $$('listTot').textContent = '€ ' + eur(total(ls));
+}
+sheet.addEventListener('click', e => {
+  if (e.target.closest('#listClose')) { listClose(); return; }
+  const op = e.target.closest('.t[data-i]'); if (op) { window.openRow(+op.dataset.i); return; }
+  const del = e.target.closest('[data-ldel]'); if (del) { removeCode(del.dataset.ldel); listRender(); say('Tolto dalla lista'); return; }
+  const st = e.target.closest('[data-lq]');
+  if (st) { const row = st.closest('[data-lc]'), it = L.items.find(x => x.c === row.dataset.lc); if (!it) return; const l = lines().find(x => x.c === it.c), u = l ? l.unit : ''; let nq = Math.round((+it.q + +st.dataset.lq) * 100) / 100; if (nq < (decUnit(u) ? 0.01 : 1)) nq = decUnit(u) ? Math.min(+it.q, 1) : 1; it.q = qfix(nq, u); row.querySelector('[data-lqi]').value = qtxt(qfix(it.q, u)); save(); rowUpdate(row); return; }
+  if (e.target.closest('#listPdf')) { sendPdf(); return; }
+  if (e.target.closest('#listMsg')) { sendMsg(); return; }
+  const cl = e.target.closest('#listClear');
+  if (cl) { if (!cl.classList.contains('sure')) { cl.classList.add('sure'); cl.textContent = 'Tocca di nuovo per svuotare'; setTimeout(() => { if (cl.isConnected) { cl.classList.remove('sure'); cl.textContent = 'Svuota la lista'; } }, 3500); return; }
+    L = { items: [], cliente: '', note: '' }; save(); listRender(); say('Lista svuotata'); return; }
+});
+sheet.addEventListener('input', e => {
+  const t = e.target, row = t.closest('[data-lc]');
+  if (t.id === 'listCli') { L.cliente = t.value; save(); return; }
+  if (t.id === 'listNote') { L.note = t.value; save(); return; }
+  if (!row) return;
+  const it = L.items.find(x => x.c === row.dataset.lc); if (!it) return;
+  if (t.hasAttribute('data-lqi')) {
+    // "2,5" is two and a half (metres); for pieces a decimal is not accepted, never read as 25
+    const v = t.value.trim().replace(',', '.'), l = lines().find(x => x.c === it.c), u = l ? l.unit : '';
+    if (!/^\d+(\.\d{1,2})?$/.test(v) || (!decUnit(u) && v.includes('.')) || +v <= 0) return;
+    it.q = qfix(+v, u); save(); rowUpdate(row); return;
+  }
+  if (t.hasAttribute('data-lp')) { const n = parseEur(t.value); const l = lines().find(x => x.c === it.c); it.p = t.value.trim() === '' ? null : n == null ? it.p : (l && n === l.cat ? null : n); save(); rowUpdate(row); }
+});
+sheet.addEventListener('change', e => {
+  const t = e.target, row = t.closest('[data-lc]'); if (!row) return;
+  const l = lines().find(x => x.c === row.dataset.lc); if (!l) return;
+  if (t.hasAttribute('data-lqi')) t.value = qtxt(l.q);
+  if (t.hasAttribute('data-lp')) t.value = l.p == null ? '' : eur(l.p);
+});
+// capture phase: decided before the article's own Escape closes it, so one Escape closes one sheet
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden && $$('sheet').hidden && (!$$('zoomImg') || $$('zoomImg').hidden) && $$('cmpSheet').hidden) listClose(); }, true);
+// an article opened from the list: when it closes, the list shows the new quantities and keeps the page still
+new MutationObserver(() => { if ($$('sheet').hidden && !sheet.hidden) { listRender(); document.body.style.overflow = 'hidden'; } }).observe($$('sheet'), { attributes: true, attributeFilter: ['hidden'] });
+{ const prevBack = window.__back; window.__back = function () {
+  if (!$$('sheet').hidden || !$$('camSheet').hidden || !$$('cmpSheet').hidden) return prevBack();
+  const z = $$('zoomImg'); if (z && !z.hidden) return prevBack();
+  if (!sheet.hidden) { listClose(); return true; }
+  return prevBack();
+}; }
+
+// "+ Lista" on the article page, next to Preferito
+function addBtnMount() {
+  const art = $$('art'), fav = art && art.querySelector('#favBtn'); if (!fav || art.querySelector('#listAdd')) return;
+  const c = fav.dataset.fav;
+  fav.insertAdjacentHTML('afterend', `<button class="chipbtn nv-addl" type="button" id="listAdd" data-ladd="${c}" aria-pressed="${inList(c)}">${inList(c) ? '✓ In lista' : '+ Lista'}</button>`);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ladd]'); if (!b) return;
+  const q = addCode(b.dataset.ladd); b.setAttribute('aria-pressed', 'true'); b.textContent = '✓ In lista';
+  say(q > 1 ? 'Nella lista: quantità ' + q : 'Aggiunto alla lista per il cliente');
+});
+{ const orig = window.openRow; window.openRow = function (i) { const r = orig.apply(this, arguments); try { addBtnMount(); } catch (err) { console.warn('lista', err); } return r; }; }
+// a click on a row of the list opens the article above it; when it closes the list is still there
+// (the article sheet has a higher layer than the list)
+
+// ---- what is sent: only code, description, quantity and price. No page numbers, price letters or internal data.
+function today() { const d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+function msgText(ls) {
+  const out = ['*Battagli Marine Hardware* – Lista articoli ' + today()];
+  if ((L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
+  out.push('');
+  for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ' + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + ' = € ' + eur(l.tot)));
+  out.push('', '*Totale € ' + eur(total(ls)) + '*' + (ls.some(l => l.p == null) ? ' (alcuni prezzi da definire)' : ''));
+  if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
+  return out.join('\n');
+}
+function fileName() { const d = new Date(); return 'Lista-Battagli-' + ((L.cliente || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'cliente') + '-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf'; }
+
+// ---- a small PDF writer: A4, Helvetica, euro sign and accented letters (WinAnsi)
+const HW = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584, 761, 556, 0, 222, 556, 333, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 222, 222, 333, 333, 350, 556, 1000, 333, 1000, 500, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 260, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 556, 537, 278, 333, 333, 365, 556, 834, 834, 834, 611, 667, 667, 667, 667, 667, 667, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 500, 556, 556, 556, 556, 278, 278, 278, 278, 556, 556, 556, 556, 556, 556, 556, 584, 611, 556, 556, 556, 556, 500, 556, 500], HB = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584, 761, 556, 0, 278, 556, 500, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 278, 278, 500, 500, 350, 556, 1000, 333, 1000, 556, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 280, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 611, 556, 278, 333, 333, 365, 556, 834, 834, 834, 611, 722, 722, 722, 722, 722, 722, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 556, 556, 556, 556, 556, 278, 278, 278, 278, 611, 611, 611, 611, 611, 611, 611, 584, 611, 611, 611, 611, 611, 556, 611, 556], W1252 = {8364: 128, 8218: 130, 402: 131, 8222: 132, 8230: 133, 8224: 134, 8225: 135, 710: 136, 8240: 137, 352: 138, 8249: 139, 338: 140, 381: 142, 8216: 145, 8217: 146, 8220: 147, 8221: 148, 8226: 149, 8211: 150, 8212: 151, 732: 152, 8482: 153, 353: 154, 8250: 155, 339: 156, 382: 158, 376: 159};
+function enc(s) {
+  let o = '';
+  for (const ch of String(s).normalize('NFC').replace(/[\u03a9\u2126]/g, 'Ohm')) {
+    const u = ch.codePointAt(0);
+    if (u > 0xffff || (u >= 0xfe00 && u <= 0xfe0f) || u === 0x200d) continue;  // emoji: left out, never shown as ?
+    let b = u >= 32 && u < 127 ? u : u >= 128 && u <= 255 ? u : W1252[u];  // 128-159: already encoded
+    if (b == null) { const base = ch.normalize('NFD').replace(/[̀-ͯ]/g, ''); b = base.length === 1 && base.charCodeAt(0) < 127 ? base.charCodeAt(0) : ({ 8217: 39, 8216: 39, 8220: 34, 8221: 34, 8211: 45, 8212: 45, 8364: 128, 956: 181 }[u] || 63); }
+    o += String.fromCharCode(b);
+  }
+  return o;
+}
+const tw = (s, size, bold) => { let w = 0; const t = bold ? HB : HW; for (let k = 0; k < s.length; k++) { const c = s.charCodeAt(k); w += c >= 32 ? (t[c - 32] || 556) : 0; } return w * size / 1000; };
+const pstr = s => '(' + s.replace(/[\\()]/g, '\\$&') + ')';
+function wrap(s, size, bold, width, maxLines) {
+  const ws = s.split(/\s+/).filter(Boolean), out = []; let cur = '';
+  for (let w of ws) {
+    while (tw(w, size, bold) > width) { let k = w.length; while (k > 1 && tw(w.slice(0, k), size, bold) > width) k--; if (cur) { out.push(cur); cur = ''; } out.push(w.slice(0, k)); w = w.slice(k); }
+    const t = cur ? cur + ' ' + w : w;
+    if (tw(t, size, bold) <= width) cur = t; else { out.push(cur); cur = w; }
+  }
+  if (cur) out.push(cur);
+  if (maxLines && out.length > maxLines) { const k = out.slice(0, maxLines); let last = k[maxLines - 1]; while (last && tw(last + '...', size, bold) > width) last = last.slice(0, -1); k[maxLines - 1] = last + '...'; return k; }
+  return out.length ? out : [''];
+}
+function buildPdf(ls) {
+  const PW = 595.28, PH = 841.89, M = 40, pages = [];
+  let ops = [], y = 0;
+  const txt = (x, yy, s, size, bold, right, gray) => { s = enc(s); const xx = right ? x - tw(s, size, bold) : x; ops.push((gray ? '0.4 g ' : '0 g ') + 'BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + xx.toFixed(2) + ' ' + yy.toFixed(2) + ' Td ' + pstr(s) + ' Tj ET'); };
+  const line = (x1, yy, x2, w, g) => ops.push((g == null ? 0.75 : g) + ' G ' + (w || 0.6) + ' w ' + x1.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x2.toFixed(2) + ' ' + yy.toFixed(2) + ' l S');
+  // columns: code | description | qty | price | total
+  const X = { code: M, desc: M + 74, qtyR: PW - M - 150, priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
+  const head = first => {
+    if (first) {
+      txt(M, PH - M - 16, 'Battagli Marine Hardware', 17, true);
+      txt(PW - M, PH - M - 16, today(), 10, false, true, true);
+      txt(M, PH - M - 34, 'Lista articoli', 12, false, false, true);
+      y = PH - M - 54;
+      if ((L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
+    } else { txt(M, PH - M - 12, 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
+    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true);
+    y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
+  };
+  const newPage = () => { pages.push(ops); ops = []; head(false); };
+  head(true);
+  for (const l of ls) {
+    const d = wrap(enc(l.desc), 9.5, false, DW, 3), h = d.length * 11.5 + 6;
+    if (y - h < M + 40) newPage();
+    txt(X.code, y, fmtCode(l.c), 9.5, true);
+    d.forEach((s, k) => txt(X.desc, y - k * 11.5, s, 9.5, false));
+    txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
+    txt(X.priceR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, false, true);
+    txt(X.totR, y, l.tot == null ? '-' : eur(l.tot), 9.5, true, true);
+    y -= h - 9.5; line(M, y, PW - M, 0.4); y -= 13;
+  }
+  if (y < M + 60) newPage();
+  const tt = '€ ' + eur(total(ls)); y -= 4; txt(Math.min(X.priceR, X.totR - tw(enc(tt), 11, true) - 12), y, 'Totale', 11, true, true); txt(X.totR, y, tt, 11, true, true); y -= 14;
+  if (ls.some(l => l.p == null)) { txt(X.totR, y, 'Alcuni prezzi sono da definire', 8.5, false, true, true); y -= 12; }
+  const note = (L.note || '').trim();
+  if (note) {
+    y -= 10; const nl = [].concat(...note.split(/\r?\n/).map(p => p.trim() ? wrap(enc(p), 9.5, false, PW - 2 * M) : [''])).slice(0, 40);
+    if (y - nl.length * 12 - 14 < M + 10) newPage();
+    txt(M, y, 'Note', 9.5, true); y -= 13; for (const s of nl) { txt(M, y, s, 9.5, false); y -= 12; }
+  }
+  pages.push(ops);
+  // assemble: 1 catalog, 2 pages, 3 F1, 4 F2, then page/content pairs
+  const objs = [], n = pages.length;
+  objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+  objs[2] = '<< /Type /Pages /Count ' + n + ' /Kids [' + pages.map((_, k) => (5 + 2 * k) + ' 0 R').join(' ') + '] >>';
+  objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  pages.forEach((p, k) => {
+    p.push('0.4 g BT /F1 8 Tf ' + (PW - M - tw('Pagina ' + (k + 1) + ' di ' + n, 8)).toFixed(2) + ' ' + (M - 14) + ' Td ' + pstr('Pagina ' + (k + 1) + ' di ' + n) + ' Tj ET');
+    const st = p.join('\n');
+    objs[5 + 2 * k] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + (6 + 2 * k) + ' 0 R >>';
+    objs[6 + 2 * k] = '<< /Length ' + st.length + ' >>\nstream\n' + st + '\nendstream';
+  });
+  let out = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'; const off = [];
+  for (let k = 1; k < objs.length; k++) { off[k] = out.length; out += k + ' 0 obj\n' + objs[k] + '\nendobj\n'; }
+  const xref = out.length;
+  out += 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n' + off.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+  out += 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R /Info << /Title ' + pstr(enc('Lista articoli Battagli')) + ' /Producer (Battagli Catalogo) >> >>\nstartxref\n' + xref + '\n%%EOF\n';
+  const bytes = new Uint8Array(out.length); for (let k = 0; k < out.length; k++) bytes[k] = out.charCodeAt(k) & 255;
+  return bytes;
+}
+window.__listaPdf = () => buildPdf(lines());
+const b64 = bytes => { let s = ''; for (let k = 0; k < bytes.length; k += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(k, k + 0x8000)); return btoa(s); };
+function checkList() {
+  const ls = lines();
+  if (!ls.length) { say('La lista è vuota'); return null; }
+  return ls;
+}
+async function sendPdf() {
+  const ls = checkList(); if (!ls) return;
+  const bytes = buildPdf(ls), name = fileName(), A = window.BattagliApp;
+  // Android app: the PDF is saved in Download/Battagli, then the phone's share sheet opens with the list as text
+  if (A) {
+    let ok = false; try { ok = typeof A.savePdf === 'function' && A.savePdf(name, b64(bytes)); } catch (e) {}
+    let sent = false; try { if (A.shareText) { A.shareText(msgText(ls)); sent = true; } } catch (e) {}
+    if (!sent) { await copyText(msgText(ls)); if (!ok) return; }
+    say(ok ? 'PDF salvato in Download/Battagli: allegalo alla mail o a WhatsApp' : typeof A.savePdf === 'function' ? 'Non sono riuscito a salvare il PDF: ti mando la lista come messaggio' : 'Questa app non può salvare il PDF: ti mando la lista come messaggio');
+    return;
+  }
+  const file = (() => { try { return new File([bytes], name, { type: 'application/pdf' }); } catch (e) { return null; } })();
+  if (file && navigator.canShare && navigator.share && !isElectron) {
+    try { if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Lista articoli Battagli' }); return; } }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  say(PF === 'pc' ? 'PDF salvato: allegalo alla mail' : 'PDF pronto: allegalo alla mail o a WhatsApp');
+}
+async function sendMsg() {
+  const ls = checkList(); if (!ls) return;
+  const text = msgText(ls), A = window.BattagliApp;
+  try { if (A && A.shareText) { A.shareText(text); return; } } catch (e) {}
+  if (navigator.share && !isElectron) { try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  await copyText(text);
+}
+async function copyText(text) {
+  let ok = false; try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+  if (!ok) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { ok = document.execCommand('copy'); } catch (e) {} t.remove(); }
+  say(ok ? 'Lista copiata: incollala su WhatsApp o nella mail' : 'Non riesco a copiare la lista');
+}
+window.__lista = { add: addCode, remove: removeCode, lines, msgText, open: listOpen, close: listClose };
+/*}LISTA*/
 })();
 
 </script></body></html>
