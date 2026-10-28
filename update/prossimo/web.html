@@ -3360,7 +3360,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 27, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 28, APP_ED = 'interno', APP_PF = 'web', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti');
 let UPD = null;
@@ -5615,7 +5615,7 @@ function listRender() {
   // codes that are no longer in the loaded catalogue leave the list (they could not be shown or sent)
   if (ready()) { const n = L.items.length; L.items = L.items.filter(x => rowOf(x.c) >= 0); if (L.items.length !== n) save(); }
   const ls = lines(), body = $$('listBody');
-  $$('listSub').textContent = ls.length ? (ls.length === 1 ? '1 articolo' : ls.length + ' articoli') + ' · si invia come PDF o come messaggio' : '';
+  $$('listSub').textContent = ls.length ? (ls.length === 1 ? '1 articolo' : ls.length + ' articoli') + (noPdf() ? ' · si invia come messaggio' : ' · si invia come PDF o come messaggio') : '';
   if (!ls.length) {
     body.innerHTML = `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità e prezzo che puoi cambiare.</div>`;
     return;
@@ -5627,7 +5627,7 @@ function listRender() {
       <span class="tot" data-ltot>${l.tot == null ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('')
     + `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>
     <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="Es. consegna, sconto, validità">${escH(L.note || '')}</textarea></label>
-    <div class="nv-lact"><button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button><button type="button" class="del" id="listClear">Svuota la lista</button></div>
+    <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}<button type="button" class="del" id="listClear">Svuota la lista</button></div>
     <p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`;
   try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
 }
@@ -5802,6 +5802,8 @@ function checkList() {
   if (!ls.length) { say('La lista è vuota'); return null; }
   return ls;
 }
+// Samsung app without a PDF saver: only "Invia lista" (text), so nobody is told it is a PDF
+function noPdf() { const A = window.BattagliApp; return !!A && typeof A.savePdf !== 'function'; }
 async function sendPdf() {
   const ls = checkList(); if (!ls) return;
   const bytes = buildPdf(ls), name = fileName(), A = window.BattagliApp;
