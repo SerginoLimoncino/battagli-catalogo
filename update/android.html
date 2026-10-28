@@ -3345,7 +3345,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 28, APP_ED = 'interno', APP_PF = 'android', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 29, APP_ED = 'interno', APP_PF = 'android', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti');
 let UPD = null;
@@ -5172,6 +5172,14 @@ css.textContent = `
 .nv-sugg .item { color: var(--ink); text-align: left; }
 .nv-sugg .item .thumb { width: 64px; height: 64px; flex: none; }
 @media (max-width: 440px) { .nv-sugg .item .pg { display: none; } }
+body.nv-off-tabCam #tabCam, body.nv-off-micBtn #micBtn { display: none !important; }
+/*LISTA{*/body.nv-off-tabNumbers #tabNumbers { display: none !important; }
+body.nv-off-tabLista #tabLista, body.nv-off-tabLista #listAdd { display: none !important; }/*}LISTA*/
+body[class*="nv-off-"] .tabbar .in { display: flex; gap: 2px; }
+body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
+.nv-togs { display: grid; gap: 8px; }
+.nv-tog { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg); border-radius: 14px; box-shadow: var(--card-shadow); padding: 12px 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.nv-tog input { width: 24px; height: 24px; flex: none; accent-color: var(--blue); }
 /*LISTA{*/
 .tabbar .in[role="tablist"] { display: flex; padding-left: 4px; padding-right: 4px; gap: 2px; }
 .tabbar .tab { flex: 1 1 0; padding: 0 2px; }
@@ -5614,6 +5622,7 @@ function listRender() {
     <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}<button type="button" class="del" id="listClear">Svuota la lista</button></div>
     <p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`;
   try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
+  if (!noPdf()) setTimeout(() => warmImgs(lines()), 400);
 }
 function rowUpdate(el) {
   const c = el.dataset.lc, it = L.items.find(x => x.c === c); if (!it) return;
@@ -5719,13 +5728,36 @@ function wrap(s, size, bold, width, maxLines) {
   if (maxLines && out.length > maxLines) { const k = out.slice(0, maxLines); let last = k[maxLines - 1]; while (last && tw(last + '...', size, bold) > width) last = last.slice(0, -1); k[maxLines - 1] = last + '...'; return k; }
   return out.length ? out : [''];
 }
+// article photos for the PDF: taken from the catalogue (same picture as the article page), small JPEGs kept in memory
+const PIMG = new Map(); let pimgQ = Promise.resolve();
+function pdfImg(r) {
+  const key = r.c + '|' + r.p;
+  if (PIMG.has(key)) return PIMG.get(key).p;
+  const e = { v: undefined }; PIMG.set(key, e);
+  e.p = pimgQ = pimgQ.then(async () => {
+    try {
+      if (typeof thumbFor !== 'function') return (e.v = null);
+      const url = await thumbFor(r, 360); if (!url) { if (url === undefined) PIMG.delete(key); return (e.v = null); }
+      const im = new Image(); im.src = url; await (im.decode ? im.decode() : new Promise((ok, no) => { im.onload = ok; im.onerror = no; }));
+      const k = Math.min(1, 240 / Math.max(im.naturalWidth, im.naturalHeight)), w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); cx.drawImage(im, 0, 0, w, h);
+      return (e.v = { w, h, d: atob(cv.toDataURL('image/jpeg', 0.82).split(',')[1]) });
+    } catch (err) { return (e.v = null); }
+  });
+  return e.p;
+}
+const warmImgs = ls => { for (const l of ls) pdfImg(l.r); };
+// waits for the photos still being prepared, at most ms
+const imgsReady = (ls, ms) => Promise.race([Promise.all(ls.map(l => pdfImg(l.r))), new Promise(r => setTimeout(r, ms))]);
+const imgOf = r => { const e = PIMG.get(r.c + '|' + r.p); return e && e.v || null; };
 function buildPdf(ls) {
   const PW = 595.28, PH = 841.89, M = 40, pages = [];
   let ops = [], y = 0;
   const txt = (x, yy, s, size, bold, right, gray) => { s = enc(s); const xx = right ? x - tw(s, size, bold) : x; ops.push((gray ? '0.4 g ' : '0 g ') + 'BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + xx.toFixed(2) + ' ' + yy.toFixed(2) + ' Td ' + pstr(s) + ' Tj ET'); };
   const line = (x1, yy, x2, w, g) => ops.push((g == null ? 0.75 : g) + ' G ' + (w || 0.6) + ' w ' + x1.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x2.toFixed(2) + ' ' + yy.toFixed(2) + ' l S');
   // columns: code | description | qty | price | total
-  const X = { code: M, desc: M + 74, qtyR: PW - M - 150, priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
+  const IW = 46, X = { img: M, code: M + IW + 8, desc: M + IW + 82, qtyR: PW - M - 150, priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
+  const imgs = [], used = [];
   const head = first => {
     if (first) {
       txt(M, PH - M - 16, 'Battagli Marine Hardware', 17, true);
@@ -5737,11 +5769,17 @@ function buildPdf(ls) {
     txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true);
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
-  const newPage = () => { pages.push(ops); ops = []; head(false); };
+  const newPage = () => { pages.push(ops); used.push(cur); ops = []; cur = new Set(); head(false); };
+  let cur = new Set();
   head(true);
   for (const l of ls) {
-    const d = wrap(enc(l.desc), 9.5, false, DW, 3), h = d.length * 11.5 + 6;
+    const im = imgOf(l.r), d = wrap(enc(l.desc), 9.5, false, DW, 3), h = Math.max(d.length * 11.5 + 6, IW + 6);
     if (y - h < M + 40) newPage();
+    if (im) {
+      let k = imgs.indexOf(im); if (k < 0) { imgs.push(im); k = imgs.length - 1; } cur.add(k);
+      const s = Math.min(IW / im.w, IW / im.h), w = im.w * s, hh = im.h * s;
+      ops.push('q ' + w.toFixed(2) + ' 0 0 ' + hh.toFixed(2) + ' ' + (X.img + (IW - w) / 2).toFixed(2) + ' ' + (y + 9.5 - (IW + hh) / 2).toFixed(2) + ' cm /Im' + k + ' Do Q');
+    }
     txt(X.code, y, fmtCode(l.c), 9.5, true);
     d.forEach((s, k) => txt(X.desc, y - k * 11.5, s, 9.5, false));
     txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
@@ -5758,7 +5796,7 @@ function buildPdf(ls) {
     if (y - nl.length * 12 - 14 < M + 10) newPage();
     txt(M, y, 'Note', 9.5, true); y -= 13; for (const s of nl) { txt(M, y, s, 9.5, false); y -= 12; }
   }
-  pages.push(ops);
+  pages.push(ops); used.push(cur);
   // assemble: 1 catalog, 2 pages, 3 F1, 4 F2, then page/content pairs
   const objs = [], n = pages.length;
   objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
@@ -5768,9 +5806,11 @@ function buildPdf(ls) {
   pages.forEach((p, k) => {
     p.push('0.4 g BT /F1 8 Tf ' + (PW - M - tw('Pagina ' + (k + 1) + ' di ' + n, 8)).toFixed(2) + ' ' + (M - 14) + ' Td ' + pstr('Pagina ' + (k + 1) + ' di ' + n) + ' Tj ET');
     const st = p.join('\n');
-    objs[5 + 2 * k] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + (6 + 2 * k) + ' 0 R >>';
+    const xo = [...used[k]].map(j => '/Im' + j + ' ' + (5 + 2 * n + j) + ' 0 R').join(' ');
+    objs[5 + 2 * k] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + PW + ' ' + PH + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' + (xo ? ' /XObject << ' + xo + ' >>' : '') + ' >> /Contents ' + (6 + 2 * k) + ' 0 R >>';
     objs[6 + 2 * k] = '<< /Length ' + st.length + ' >>\nstream\n' + st + '\nendstream';
   });
+  imgs.forEach((im, j) => { objs[5 + 2 * n + j] = '<< /Type /XObject /Subtype /Image /Width ' + im.w + ' /Height ' + im.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + im.d.length + ' >>\nstream\n' + im.d + '\nendstream'; });
   let out = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'; const off = [];
   for (let k = 1; k < objs.length; k++) { off[k] = out.length; out += k + ' 0 obj\n' + objs[k] + '\nendobj\n'; }
   const xref = out.length;
@@ -5780,6 +5820,7 @@ function buildPdf(ls) {
   return bytes;
 }
 window.__listaPdf = () => buildPdf(lines());
+window.__listaPdfImg = async ms => { const ls = lines(); warmImgs(ls); await imgsReady(ls, ms || 15000); return buildPdf(ls); };
 const b64 = bytes => { let s = ''; for (let k = 0; k < bytes.length; k += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(k, k + 0x8000)); return btoa(s); };
 function checkList() {
   const ls = lines();
@@ -5790,6 +5831,7 @@ function checkList() {
 function noPdf() { const A = window.BattagliApp; return !!A && typeof A.savePdf !== 'function'; }
 async function sendPdf() {
   const ls = checkList(); if (!ls) return;
+  warmImgs(ls); await imgsReady(ls, window.BattagliApp || isElectron || !navigator.canShare ? 4000 : 600);
   const bytes = buildPdf(ls), name = fileName(), A = window.BattagliApp;
   // Android app: the PDF is saved in Download/Battagli, then the phone's share sheet opens with the list as text
   if (A) {
@@ -5822,6 +5864,27 @@ async function copyText(text) {
 }
 window.__lista = { add: addCode, remove: removeCode, lines, msgText, open: listOpen, close: listClose };
 /*}LISTA*/
+
+// Settings: each person chooses which sections stay in the bottom bar (kept on this device, updates do not change it)
+(function tabChoice() {
+  const ALL = [['micBtn', 'Microfono (ricerca a voce)'], ['tabCam', 'Cerca foto']/*LISTA{*/, ['tabNumbers', 'Numeri utili'], ['tabLista', 'Lista per il cliente']/*}LISTA*/];  // the customer copy only has Cerca foto
+  const here = ALL.filter(([id]) => { const el = $$(id); return el && getComputedStyle(el).display !== 'none'; });
+  const set = $$('viewSettings'), share = $$('shareSec');
+  if (!here.length || !set) return;
+  const get = () => { try { const v = JSON.parse(localStorage.getItem('nvTabsOff') || '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string') : []; } catch (e) { return []; } };
+  const apply = off => { for (const [id] of ALL) document.body.classList.toggle('nv-off-' + id, off.includes(id) && here.some(h => h[0] === id)); };
+  apply(get());
+  const sec = document.createElement('section'); sec.id = 'tabsSec';
+  sec.innerHTML = '<div class="block-h"><h2>Cosa vuoi vedere</h2></div><div class="nv-togs">' + here.map(([id, name]) => '<label class="nv-tog"><span>' + name + '</span><input type="checkbox" data-tab="' + id + '"' + (get().includes(id) ? '' : ' checked') + '></label>').join('') + '</div><p class="note" style="margin-top:8px">Togli quello che non usi: puoi rimetterlo quando vuoi.</p>';
+  const main = set.querySelector('main') || set;
+  if (share && share.parentNode === main) main.insertBefore(sec, share); else main.appendChild(sec);
+  sec.addEventListener('change', e => {
+    const t = e.target.closest('input[data-tab]'); if (!t) return;
+    const off = get().filter(x => x !== t.dataset.tab); if (!t.checked) off.push(t.dataset.tab);
+    try { localStorage.setItem('nvTabsOff', JSON.stringify(off)); } catch (err) {}
+    apply(off);
+  });
+})();
 })();
 
 </script></body></html>
