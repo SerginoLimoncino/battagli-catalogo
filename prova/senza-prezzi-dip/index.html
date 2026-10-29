@@ -6009,7 +6009,7 @@ function descOf(r) {
   for (const [k0, v0] of r.f || []) {
     const k = String(k0 || '').trim(), v = String(v0 || '').trim();
     if (!/^prezz/i.test(k)) continue;
-    if (v && !/\d,\d{2}/.test(v) && !(CLI && /^[A-Z]{1,2}$/.test(v))) pk.push(k + ' ' + v);
+    if (v && !/\d,\d{2}/.test(v) && !((CLI || NOPREZZI) && /^[A-Z]{1,2}$/.test(v))) pk.push(k + ' ' + v);
     else if (!/^prezzo\s*(mt|mq|pz|kg|lt|m)?$/i.test(k)) pk.push(k);
   }
   if (pk.length) s += ' (' + pk.join(', ') + ')';
@@ -6110,7 +6110,7 @@ function listRender() {
   }
   body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
     + (CLI || NOPREZZI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali.<br>${prezziOn() ? 'Nel PDF e nel messaggio vanno anche i prezzi, senza totale.' : (NOQ ? 'Nel PDF e nel messaggio vanno solo codici e lettere.' : 'Nel PDF e nel messaggio vanno solo codici, quantità e lettere.')}</p>`)
-    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
+    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI && !NOPREZZI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
       ${CLI || NOPREZZI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>${l.let ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : ''}`}
       <span class="tot" data-ltot>${l.tot == null || CLI || NOTOT ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
