@@ -1,0 +1,44 @@
+# Copies the producers' official data sheets (schede/elenco.txt: "name url") into schede/,
+# so the app can show them inside its own PDF viewer. Also fetches the viewer (pdf.js).
+name: Schede tecniche
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [schede/elenco.txt, .github/workflows/schede.yml]
+permissions:
+  contents: write
+jobs:
+  scarica:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica le schede
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils >/dev/null
+          mkdir -p schede/pdfjs
+          curl -fsSL -o schede/pdfjs/pdf.min.js https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js
+          curl -fsSL -o schede/pdfjs/pdf.worker.min.js https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js
+          : > schede/esito.txt
+          while read -r name url; do
+            [ -z "$name" ] && continue
+            tmp=$(mktemp)
+            if curl -fsSL --retry 2 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o "$tmp" "$url" && head -c 5 "$tmp" | grep -q '%PDF'; then
+              txt=$(pdftotext -l 3 "$tmp" - 2>/dev/null | tr '\n' ' ' | head -c 400)
+              if pdftotext "$tmp" - 2>/dev/null | grep -qi 'osculati\|nautikit\|eurofritid\|marinestore\|gauciborda'; then
+                echo "RIVENDITORE $name $url" >> schede/esito.txt; rm -f "$tmp"; continue
+              fi
+              mv "$tmp" "schede/$name.pdf"
+              echo "OK $name $(stat -c %s schede/$name.pdf) $url | ${txt:0:160}" >> schede/esito.txt
+            else
+              echo "ERRORE $name $url" >> schede/esito.txt; rm -f "$tmp"
+            fi
+          done < schede/elenco.txt
+          cat schede/esito.txt
+      - name: Salva
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
+          git add schede
+          git commit -m "Schede tecniche ufficiali copiate dai siti dei produttori" || exit 0
+          git push
