@@ -5971,7 +5971,7 @@ function priceOf(r) {
   return +(m[1].replace(/\./g, '') + '.' + m[2]);
 }
 // customer copy: the catalogue shows only the price letter ("A", "H"...), never the euro price
-const letterOf = r => { const p = (r.f || []).find(([k, v]) => /^prezz/i.test(k) && /^[A-Z]{1,2}$/.test(String(v).trim())); return p ? String(p[1]).trim() : ''; };
+const letterOf = r => { for (const [k, v] of r.f || []) { const m = /^prezz/i.test(k) && String(v).trim().match(/(?:^|\s)([A-Z]{1,2})$/); if (m) return m[1]; } return ''; };  // "A" or "11,10 A"
 function unitOf(r) { const p = (r.f || []).find(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)); const m = p && p[0].match(/prezzo\s*(mt|mq|pz|kg|lt|m)\b/i); return m ? m[1].toLowerCase() : ''; }
 function descOf(r) {
   const t = famTitle(r);
@@ -6008,7 +6008,7 @@ function linesOf(items) {
   return items.map(it => {
     const i = rowOf(it.c); if (i < 0) return null;
     const r = INDEX.rows[i], cat = priceOf(r), p = !CLI && it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
-    return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100, let: CLI ? letterOf(r) : '' };
+    return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100, let: letterOf(r) };
   }).filter(Boolean);
 }
 const total = ls => Math.round(ls.reduce((s, l) => s + (l.tot || 0), 0) * 100) / 100;
@@ -6090,7 +6090,7 @@ function listRender() {
     return;
   }
   body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
-    + (CLI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali</p>`)
+    + (CLI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali.<br>Nel PDF e nel messaggio vanno solo codici, quantità e lettere.</p>`)
     + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
       ${CLI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
@@ -6272,6 +6272,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.ha
 // ---- what is sent: only code, description, quantity and price. No page numbers, price letters or internal data.
 function today() { const d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
 function msgText(ls) {
+  const CLI = true;  // sent like the customer list: letters, never prices (Sergio 29-10-2026)
   const out = [CLI ? '*Lista articoli* ' + today() : '*Battagli Marine Hardware* – Lista articoli ' + today()];
   if (!CLI && (L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
   if (!CLI) out.push('_Prezzi ' + IVA_TXT + '_');
@@ -6289,7 +6290,7 @@ function msgText(ls) {
   if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
   return out.join('\n');
 }
-function fileName() { const d = new Date(); return CLI ? 'Lista-articoli-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf' : 'Lista-Battagli-' + ((L.cliente || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'cliente') + '-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf'; }
+function fileName() { const d = new Date(); return true ? 'Lista-articoli-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf' : 'Lista-Battagli-' + ((L.cliente || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'cliente') + '-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '.pdf'; }
 
 // ---- a small PDF writer: A4, Helvetica, euro sign and accented letters (WinAnsi)
 const HW = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584, 761, 556, 0, 222, 556, 333, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 222, 222, 333, 333, 350, 556, 1000, 333, 1000, 500, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 260, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 556, 537, 278, 333, 333, 365, 556, 834, 834, 834, 611, 667, 667, 667, 667, 667, 667, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 500, 556, 556, 556, 556, 278, 278, 278, 278, 556, 556, 556, 556, 556, 556, 556, 584, 611, 556, 556, 556, 556, 500, 556, 500], HB = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584, 761, 556, 0, 278, 556, 500, 1000, 556, 556, 333, 1000, 667, 333, 1000, 0, 611, 0, 0, 278, 278, 500, 500, 350, 556, 1000, 333, 1000, 556, 333, 944, 0, 500, 667, 278, 333, 556, 556, 556, 556, 280, 556, 333, 737, 370, 556, 584, 333, 737, 333, 400, 584, 333, 333, 333, 611, 556, 278, 333, 333, 365, 556, 834, 834, 834, 611, 722, 722, 722, 722, 722, 722, 1000, 722, 667, 667, 667, 667, 278, 278, 278, 278, 722, 722, 778, 778, 778, 778, 778, 584, 778, 722, 722, 722, 722, 667, 667, 611, 556, 556, 556, 556, 556, 556, 889, 556, 556, 556, 556, 556, 278, 278, 278, 278, 611, 611, 611, 611, 611, 611, 611, 584, 611, 611, 611, 611, 611, 556, 611, 556], W1252 = {8364: 128, 8218: 130, 402: 131, 8222: 132, 8230: 133, 8224: 134, 8225: 135, 710: 136, 8240: 137, 352: 138, 8249: 139, 338: 140, 381: 142, 8216: 145, 8217: 146, 8220: 147, 8221: 148, 8226: 149, 8211: 150, 8212: 151, 732: 152, 8482: 153, 353: 154, 8250: 155, 339: 156, 382: 158, 376: 159};
@@ -6343,6 +6344,7 @@ const fotoOn = () => { try { return localStorage.getItem('listaFoto') !== '0'; }
 document.addEventListener('change', e => { if (e.target && e.target.id === 'listFoto') { try { localStorage.setItem('listaFoto', e.target.checked ? '1' : '0'); } catch (err) {} if (e.target.checked) warmImgs(lines()); } });
 const imgOf = r => { if (!fotoOn()) return null; const e = PIMG.get(r.c + '|' + r.p); return e && e.v || null; };
 function buildPdf(ls) {
+  const CLI = true;  // sent like the customer list: letters, never prices (Sergio 29-10-2026)
   const PW = 595.28, PH = 841.89, M = 40, pages = [];
   let ops = [], y = 0;
   const txt = (x, yy, s, size, bold, right, gray) => { s = enc(s); const xx = right ? x - tw(s, size, bold) : x; ops.push((gray ? '0.4 g ' : '0 g ') + 'BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + xx.toFixed(2) + ' ' + yy.toFixed(2) + ' Td ' + pstr(s) + ' Tj ET'); };
