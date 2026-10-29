@@ -84,6 +84,7 @@
 #favPage .frep i { width: 10px; height: 10px; border-radius: 50%; display: block; }
 #favPage .fitem { display: grid; grid-template-columns: minmax(0, 1fr) 52px; align-items: stretch; background: var(--bg); border-radius: 16px; box-shadow: var(--card-shadow); margin-bottom: 10px; overflow: hidden; }
 #favPage .fitem .fam { border: 0; border-radius: 0; box-shadow: none; margin: 0; background: transparent; }
+.facts .iva { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: #fde7c4; color: #8a4b00; font-size: .8em; font-weight: 800; }
 #favPage .fitem .fam .s .pr { color: var(--ink); font-weight: 700; margin-left: 6px; }
 #favPage .favx { border: 0; border-left: 1px solid var(--line); background: transparent; display: grid; place-items: center; cursor: pointer; }
 #favPage .favx svg { width: 22px; height: 22px; fill: #f2b705; stroke: #d29a00; }
@@ -1308,7 +1309,9 @@ function hlCode(c, d) {
   return out.replace(/<\/mark>(\.?)<mark>/g, '$1');
 }
 
-function rowSummary(r) { return r.f.map(x => x[1]).filter(Boolean).join(' · '); }
+const IVA_TXT = 'IVA esclusa';  // catalogue prices are without VAT (Sergio 29-10-2026)
+const isPrice = (k, v) => /prezz/i.test(k || '') && /\d,\d{2}/.test(v || '');
+function rowSummary(r) { return r.f.map(([k, v]) => isPrice(k, v) ? v + ' + IVA' : v).filter(Boolean).join(' · '); }
 
 let lastAutoOpen = '', autoT = 0, lastQKey = '', repFilter = '';
 function runSearch() {
@@ -1366,7 +1369,7 @@ function openRow(i, fromHash) {
   const rep = r.c.slice(0, 2);
   const siblings = INDEX.rows.map((x, j) => [x, j]).filter(([x]) => x.b === r.b && r.b >= 0);
   const facts = [['Codice', `<span class="mono">${fmtCode(r.c)}</span>`], ['Senza punti', `<span class="mono">${r.c}</span>`]];
-  for (const [k, v] of r.f) facts.push([esc(k || 'Dettaglio'), esc(v)]);
+  for (const [k, v] of r.f) facts.push([esc(k || 'Dettaglio'), esc(v) + (isPrice(k, v) ? ' <b class="iva">' + IVA_TXT + '</b>' : '')]);
   facts.push(['Reparto', esc(rep + ' · ' + (REPARTI[rep] || '–'))]);
   facts.push(['Pagina del PDF', String(r.p)]);
   const canPage = !INDEX.example;
@@ -3412,7 +3415,7 @@ function favPageRender() {
   for (const c of [...list].sort()) { const k = c.slice(0, 2); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(c); }
   $('favPage').innerHTML = [...groups].map(([k, cs]) => `<div class="frep"><i style="background:${(REP_ICON[k] || {}).c || 'var(--blue)'}"></i>${esc((typeof REPARTI !== 'undefined' && REPARTI[k]) || 'Reparto ' + k)} · ${cs.length}</div><div class="fgrid">` + cs.map(c => {
     const i = byCode.get(c), r = INDEX.rows[i], pr = favPrice(r);
-    return `<div class="fitem"><button class="fam" type="button" data-i="${i}"><span class="thumb" data-thumb="${i}"></span><span style="min-width:0"><b>${esc(famTitle(r))}</b><span class="s">${fmtCode(c)}${pr ? `<span class="pr">${esc(pr)}</span>` : ''}</span></span></button><button class="favx" type="button" data-unfav="${c}" aria-label="Togli dai preferiti">${STAR}</button></div>`;
+    return `<div class="fitem"><button class="fam" type="button" data-i="${i}"><span class="thumb" data-thumb="${i}"></span><span style="min-width:0"><b>${esc(famTitle(r))}</b><span class="s">${fmtCode(c)}${pr ? `<span class="pr">${esc(pr)} + IVA</span>` : ''}</span></span></button><button class="favx" type="button" data-unfav="${c}" aria-label="Togli dai preferiti">${STAR}</button></div>`;
   }).join('') + '</div>').join('') || `<div class="empty"><b>${all.length ? 'Nessun preferito trovato' : 'Nessun preferito'}</b></div>`;
   if (typeof hydrateThumbs === 'function') hydrateThumbs();
 }
@@ -5575,6 +5578,7 @@ body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-lact button.alt { background: var(--blue-soft); color: var(--blue); }
 .nv-lact button.del { grid-column: 1 / -1; background: transparent; color: var(--red, #d33); padding: 8px; }
 .nv-lact button.del.sure { background: var(--red, #d33); color: #fff; }
+.nv-iva { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; background: #fde7c4; color: #8a4b00; font-weight: 800; font-size: 14px; }
 .nv-lhelp { color: var(--muted); font-size: 13.5px; margin: 0; }
 .nv-gone { gap: 6px; box-shadow: inset 0 0 0 1.5px var(--line); background: transparent; }
 .nv-gone > b { font-size: 15px; color: var(--ink); }
@@ -6086,6 +6090,7 @@ function listRender() {
     return;
   }
   body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
+    + (CLI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali</p>`)
     + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
       ${CLI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
@@ -6269,6 +6274,7 @@ function today() { const d = new Date(); return String(d.getDate()).padStart(2, 
 function msgText(ls) {
   const out = [CLI ? '*Lista articoli* ' + today() : '*Battagli Marine Hardware* – Lista articoli ' + today()];
   if (!CLI && (L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
+  if (!CLI) out.push('_Prezzi ' + IVA_TXT + '_');
   out.push('');
   if (CLI) {  // only code, description, quantity and price letter
     for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   Q.tà ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + (l.let ? ' · ' + l.let : ''));
@@ -6354,8 +6360,9 @@ function buildPdf(ls) {
       txt(M, PH - M - 34, 'Lista articoli', 12, false, false, true);
       y = PH - M - 54; }
       if (!CLI && (L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
+      if (!CLI) { txt(M, y, 'Prezzi ' + IVA_TXT, 10.5, true); y -= 18; }
     } else { txt(M, PH - M - 12, CLI ? 'Lista articoli (segue)' : 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
-    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else if (NOTOT) txt(X.totR, y, 'Prezzo €', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
+    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else if (NOTOT) txt(X.totR, y, 'Prezzo € (IVA escl.)', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
   const newPage = () => { pages.push(ops); used.push(cur); ops = []; cur = new Set(); head(false); };
