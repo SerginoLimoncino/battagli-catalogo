@@ -5493,6 +5493,7 @@ window.openRow = function (i) { const r = orig.apply(this, arguments); try { mou
 // Lista: in both copies. Employee copy: "Lista per il cliente" with editable prices and the Battagli header.
 // Customer copy (CLI = true): "Lista dei desideri" on a plain white sheet, no name or logo, no euro prices: only code, quantity and the catalogue's price letter (Sergio 28-10-2026). Liste salvate in both copies (customers too, kept apart in listeSalvateClienti).
 const CLI = false;
+const NOQ = true;  // employee list: no quantities, each article once (Sergio 29-10-2026)
 const NOTOT = true;  // employee list: price of each article only, no discounts and no totals (Sergio 29-10-2026)
 /*INT{*//*}INT*/
 // Tutto succede sul telefono: nessuna pagina esterna, nessun servizio online.
@@ -5561,6 +5562,7 @@ body[class*="nv-off-"] .tabbar .tab { flex: 1 1 0; }
 .nv-lrow .top .t small { display: block; font-size: 12.5px; color: var(--muted); }
 .nv-lrow .x { border: 0; background: var(--soft, #eef2f7); color: var(--muted); width: 36px; height: 36px; border-radius: 50%; font-size: 15px; flex: none; }
 .nv-lrow .nums { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.nv-aq, .nv-step { display: none !important; }  /* no quantities (NOQ) */
 .nv-step { display: inline-flex; align-items: center; border-radius: 999px; box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
 .nv-step button { border: 0; background: transparent; color: var(--blue); width: 36px; height: 36px; font-size: 20px; font-weight: 800; }
 .nv-step input { width: 46px; border: 0; background: transparent; text-align: center; font-size: 16px; font-weight: 700; color: var(--ink); padding: 0; }
@@ -6006,7 +6008,7 @@ function linesOf(items) {
   if (!ready()) return [];
   return items.map(it => {
     const i = rowOf(it.c); if (i < 0) return null;
-    const r = INDEX.rows[i], cat = priceOf(r), p = !CLI && it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
+    const r = INDEX.rows[i], cat = priceOf(r), p = !CLI && it.p != null ? it.p : cat, unit = unitOf(r), q = NOQ ? 1 : qfix(it.q, unit);
     return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100, let: letterOf(r) };
   }).filter(Boolean);
 }
@@ -6043,7 +6045,7 @@ function save() { lset(L); badge(); if (L.sid) folderSync(); }
 function addCode(c) {
   L = lget();
   const x = L.items.find(y => y.c === c);
-  if (x) x.q = Math.min(99999, (+x.q || 1) + 1); else L.items.push({ c, q: 1, p: null });
+  if (x) x.q = NOQ ? 1 : Math.min(99999, (+x.q || 1) + 1); else L.items.push({ c, q: 1, p: null });
   save(); return x ? x.q : 1;
 }
 // quantity of one code in the list (0 = not in the list)
@@ -6085,11 +6087,11 @@ function listRender() {
   if (sview) { savedRender(); return; }
   const bar = sbarHtml();
   if (!ls.length) {
-    body.innerHTML = bar + goneHtml + `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità${CLI ? ' e lettera' : ' e prezzo che puoi cambiare'}.</div>`;
+    body.innerHTML = bar + goneHtml + `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui${NOQ ? ', con il prezzo' : ', con quantità' + (CLI ? ' e lettera' : ' e prezzo che puoi cambiare')}.</div>`;
     return;
   }
   body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
-    + (CLI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali.<br>${prezziOn() ? 'Nel PDF e nel messaggio vanno anche i prezzi, senza totale.' : 'Nel PDF e nel messaggio vanno solo codici, quantità e lettere.'}</p>`)
+    + (CLI ? '' : `<p class="nv-iva">Prezzi ${IVA_TXT}: non sono prezzi finali.<br>${prezziOn() ? 'Nel PDF e nel messaggio vanno anche i prezzi, senza totale.' : (NOQ ? 'Nel PDF e nel messaggio vanno solo codici e lettere.' : 'Nel PDF e nel messaggio vanno solo codici, quantità e lettere.')}</p>`)
     + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
       ${CLI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
@@ -6142,7 +6144,7 @@ function savedRender() {
   $$('listSub').textContent = a.length ? (a.length === 1 ? '1 lista salvata' : a.length + ' liste salvate') : '';
   body.innerHTML = `<div class="nv-sbar"><button type="button" class="nv-sbtn" id="listBackCur" style="margin-left:0">‹ Lista attuale</button></div>`
     + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'}${CLI || NOTOT ? '' : ' · € ' + eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
-      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità${CLI ? ' e note' : (NOTOT ? ', prezzi e note' : ', prezzi, sconti e note')}.</div>`);
+      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui${NOQ ? '' : ', con quantità'}${CLI ? ' e note' : (NOTOT ? ', prezzi e note' : ', prezzi, sconti e note')}.</div>`);
 }
 function sopen(id) {
   const a = sget(), f = a.find(x => x.id === id); if (!f) return;
@@ -6255,7 +6257,7 @@ document.addEventListener('click', e => {
   }
   const b = e.target.closest('[data-ladd]'); if (!b) return;
   const c = b.dataset.ladd, q = addCode(c); b.setAttribute('aria-pressed', 'true'); b.textContent = '✓ In lista'; aqShow(c, q);
-  say(q > 1 ? 'Nella lista: quantità ' + qtxt(q) : CLI ? 'Aggiunto alla lista' : 'Aggiunto alla lista per il cliente');
+  say(NOQ && q > 1 ? 'Già nella lista' : q > 1 ? 'Nella lista: quantità ' + qtxt(q) : CLI ? 'Aggiunto alla lista' : 'Aggiunto alla lista per il cliente');
 });
 // quantity typed by hand: "2,5" only for metres/kg; pieces whole numbers; a wrong value goes back to the saved one
 document.addEventListener('input', e => {
@@ -6278,11 +6280,11 @@ function msgText(ls) {
   if (!CLI) out.push('_Prezzi ' + IVA_TXT + '_');
   out.push('');
   if (CLI) {  // only code, description, quantity and price letter
-    for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   Q.tà ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + (l.let ? ' · ' + l.let : ''));
+    for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc + (NOQ && l.let ? ' · ' + l.let : ''), ...(NOQ ? [] : ['   Q.tà ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + (l.let ? ' · ' + l.let : '')]));
     if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
     return out.join('\n');
   }
-  for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ' + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + (NOTOT ? '' : ' = € ' + eur(l.tot))));
+  for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + (NOQ ? '' : qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ') + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + (NOTOT ? '' : ' = € ' + eur(l.tot))));
   const dl = discOut(ls);
   if (NOTOT) { if (ls.some(l => l.p == null)) out.push('', '(alcuni prezzi da definire)'); }
   else out.push('', '*Totale € ' + eur(total(ls)) + '*' + (ls.some(l => l.p == null) ? ' (alcuni prezzi da definire)' : ''));
@@ -6366,7 +6368,7 @@ function buildPdf(ls) {
       if (!CLI && (L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
       if (!CLI) { txt(M, y, 'Prezzi ' + IVA_TXT, 10.5, true); y -= 18; }
     } else { txt(M, PH - M - 12, CLI ? 'Lista articoli (segue)' : 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
-    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else if (NOTOT) txt(X.totR, y, 'Prezzo €', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
+    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); if (!NOQ) txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else if (NOTOT) txt(X.totR, y, 'Prezzo €', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
   const newPage = () => { pages.push(ops); used.push(cur); ops = []; cur = new Set(); head(false); };
@@ -6382,7 +6384,7 @@ function buildPdf(ls) {
     }
     txt(X.code, y, fmtCode(l.c), 9.5, true);
     d.forEach((s, k) => txt(X.desc, y - k * 11.5, s, 9.5, false));
-    txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
+    if (!NOQ) txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
     if (CLI) txt(X.totR, y, l.let || '-', 9.5, true, true);
     else if (NOTOT) txt(X.totR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, true, true);
     else { txt(X.priceR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, false, true);
