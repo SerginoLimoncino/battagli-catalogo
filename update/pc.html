@@ -1066,12 +1066,12 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 let PRE = null;
 let PRE_SIG = '';
 const preSig = () => PRE_SIG || (PRE_SIG = (() => { const t = [normText, words, fmtCode, fold, buildVocab].map(f => String(f)).join('|') + [...STOP].join(','); let x = 0x811c9dc5; for (let k = 0; k < t.length; k++) { x ^= t.charCodeAt(k); x = Math.imul(x, 16777619) >>> 0; } return x.toString(16); })());
-const preKey = idx => [preSig() + '|clean2', idx.at, idx.v, idx.name, idx.rows.length, idx.blocks.length].join('|');
+const preKey = idx => [preSig() + '|clean1', idx.at, idx.v, idx.name, idx.rows.length, idx.blocks.length].join('|');
 let preT = 0;
 function savePre(idx) { clearTimeout(preT); const key = preKey(idx), d = { key, HAY, HAYT, HAYS, V: [...VOCAB] }; preT = setTimeout(() => { if (INDEX === idx) idbSet('pre', d); }, 4000); }
 function cleanIdx(idx) {
-  if (!idx || idx.example || !idx.rows || idx.cleanV === 2) return;
-  const cli = true;  // no euro prices in either copy (Sergio 29-10-2026)
+  if (!idx || idx.example || !idx.rows || idx.cleanV === 1) return;
+  let cli = false; try { cli = APP_ED === 'cliente'; } catch (e) {}
   for (const r of idx.rows) {
     if (!r || !r.f) continue;
     const e = r.f.filter(([k]) => !k).map(([, v]) => String(v).trim().toLowerCase());
@@ -1082,7 +1082,7 @@ function cleanIdx(idx) {
       return m ? [k, m[1]] : [k, v];
     }).filter(([k, v]) => !(/prezz/i.test(k) && v === ''));
   }
-  idx.cleanV = 2;
+  idx.cleanV = 1;
 }
 function setIndex(idx, meta) {
   cleanIdx(idx);
@@ -2387,8 +2387,6 @@ async function upgradeIndex() {
 // ---------- boot ----------
 
 // ---------- first start without a catalogue: get it from this edition's site ----------
-// catalogues with euro prices, published until 28-10-2026 (the one without prices for everyone came after)
-const oldPriced = c => !!c && !c.example && (c.at || 0) <= 1793180597629;
 const SITE_CAT = 'https://serginolimoncino.github.io/battagli-catalogo/CATALOG/'.replace('CATALOG', 'catalog');
 async function siteCatalog() {
   const cur = await idbGet('index');
@@ -2399,7 +2397,7 @@ async function siteCatalog() {
   try { const r = await fetch(SITE_CAT + 'info.json', { cache: 'no-store' }); if (r.ok) info = await r.json(); } catch (e) {}
   if (!info || !info.at) return false;
   // catalogue inside the app (or this is the site): first start uses it, later only a newer one from the site is offered
-  if (loc && ((!(cur && cur.rows && cur.rows.length) && !oldPriced(loc)) || !(info.at > (loc.at || 0)))) return false;
+  if (loc && (!(cur && cur.rows && cur.rows.length) || !(info.at > (loc.at || 0)))) return false;
   if (cur && cur.rows && cur.rows.length) {
     // a newer catalogue was published: ask once, the one in use stays as "catalogo precedente"
     if (!cur.example && cur.at >= info.at) return false;
@@ -2452,10 +2450,23 @@ async function siteCatalog() {
   return true;
 }
 (async function boot() {
-  // the employee catalogue with prices goes, also as "catalogo precedente": the one without prices is downloaded again
-  try {
-    if (oldPriced(await idbGet('indexPrev'))) for (const k of ['indexPrev', 'pdfPrev', 'pdfKeyPrev']) await idbDel(k);
-    if (oldPriced(await idbGet('index'))) for (const k of ['index', 'pdf', 'pdfKey', 'meta', 'pre']) await idbDel(k);
+  // 1793206457477 = first customer catalogue without prices, saved before it carried ed: 'cliente';
+  // 1793268749752 = the employee catalogue without prices of build 35 (29-10-2026, withdrawn the same day)
+  const cliCat = c => c && (c.ed === 'cliente' || c.at === 1793206457477 || c.at === 1793268749752);
+  try { await 0;  // APP_ED is declared further down the script
+    const cur = APP_ED !== 'cliente' ? await idbGet('index') : null, none = !(cur && cur.rows && cur.rows.length && !cur.example);
+    if (APP_ED !== 'cliente' && (cliCat(cur) || none) && (cliCat(cur) || (await idbGet('indexPrev')))) {
+      // the employee catalogue was kept as "catalogo precedente" (also after a download that did not fit):
+      // put it back, nothing to download and no room needed
+      const pv = await idbGet('indexPrev'), pp = pv && pv.rows && !cliCat(pv) ? await idbGet('pdfPrev') : null;
+      if (pp) {
+        await idbSet('pdf', pp); await idbSet('pdfKey', (await idbGet('pdfKeyPrev')) || pv.at); await idbSet('index', pv);
+        const vm = await idbGet('vismeta'); if (vm) await idbSet('vismeta', Object.assign({}, vm, { at: pv.at }));  // same photos in both copies
+        for (const k of ['meta', 'pre']) await idbDel(k);
+        for (const k of ['indexPrev', 'pdfPrev', 'pdfKeyPrev']) await idbDel(k);
+      } else if (cliCat(cur)) for (const k of ['index', 'pdf', 'pdfKey', 'meta', 'pre']) await idbDel(k);
+      if (cliCat(await idbGet('indexPrev'))) for (const k of ['indexPrev', 'pdfPrev', 'pdfKeyPrev']) await idbDel(k);
+    } else if (APP_ED !== 'cliente' && cliCat(await idbGet('indexPrev'))) for (const k of ['indexPrev', 'pdfPrev', 'pdfKeyPrev']) await idbDel(k);
   } catch (e) {}
   let hasCat = false; try { const c = await idbGet('index'); hasCat = !!(c && c.rows && c.rows.length && !c.example); } catch (e) {}
   const catFail = () => { overlay(false); toast('Download del catalogo non riuscito: riprovo alla prossima apertura'); };
@@ -2730,7 +2741,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 35, APP_ED = 'interno', APP_PF = 'pc', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 36, APP_ED = 'interno', APP_PF = 'pc', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti');
 let UPD = null;
@@ -4759,7 +4770,6 @@ window.openRow = function (i) { const r = orig.apply(this, arguments); try { mou
 // Lista: in both copies. Employee copy: "Lista per il cliente" with editable prices and the Battagli header.
 // Customer copy (CLI = true): "Lista dei desideri" on a plain white sheet, no name or logo, no euro prices: only code, quantity and the catalogue's price letter (Sergio 28-10-2026). Liste salvate in both copies (customers too, kept apart in listeSalvateClienti).
 const CLI = false;
-const NOP = true;  // no prices, totals or discounts in the list (Sergio 29-10-2026)
 /*INT{*//*}INT*/
 // Tutto succede sul telefono: nessuna pagina esterna, nessun servizio online.
 (function () {
@@ -5223,7 +5233,7 @@ const lget = () => {
   // a damaged entry is dropped, never shown as a broken row
   const items = v.items.filter(x => x && typeof x.c === 'string' && /^\d{8}$/.test(x.c)).map(x => ({ c: x.c, q: isFinite(+x.q) && +x.q > 0 ? +x.q : 1, p: x.p == null || !isFinite(+x.p) || +x.p < 0 ? null : +x.p }));
   const pc = x => x == null || x === '' || !isFinite(+x) || +x <= 0 ? null : Math.min(100, Math.round(+x * 100) / 100);
-  const o = { items, cliente: typeof v.cliente === 'string' ? v.cliente : '', note: typeof v.note === 'string' ? v.note : '', sc1: NOP ? null : pc(v.sc1), sc2: NOP ? null : pc(v.sc2) };  // customer copy: no discounts
+  const o = { items, cliente: typeof v.cliente === 'string' ? v.cliente : '', note: typeof v.note === 'string' ? v.note : '', sc1: CLI ? null : pc(v.sc1), sc2: CLI ? null : pc(v.sc2) };  // customer copy: no discounts
   if (typeof v.sid === 'string') o.sid = v.sid;  // the saved list this one is (its changes are kept there too)
   return o;
 };
@@ -5254,7 +5264,7 @@ function descOf(r) {
   for (const [k0, v0] of r.f || []) {
     const k = String(k0 || '').trim(), v = String(v0 || '').trim();
     if (!/^prezz/i.test(k)) continue;
-    if (v && !/\d,\d{2}/.test(v) && !(NOP && /^[A-Z]{1,2}$/.test(v))) pk.push(k + ' ' + v);
+    if (v && !/\d,\d{2}/.test(v) && !(CLI && /^[A-Z]{1,2}$/.test(v))) pk.push(k + ' ' + v);
     else if (!/^prezzo\s*(mt|mq|pz|kg|lt|m)?$/i.test(k)) pk.push(k);
   }
   if (pk.length) s += ' (' + pk.join(', ') + ')';
@@ -5271,8 +5281,8 @@ function linesOf(items) {
   if (!ready()) return [];
   return items.map(it => {
     const i = rowOf(it.c); if (i < 0) return null;
-    const r = INDEX.rows[i], cat = priceOf(r), p = !NOP && it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
-    return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100, let: NOP ? letterOf(r) : '' };
+    const r = INDEX.rows[i], cat = priceOf(r), p = !CLI && it.p != null ? it.p : cat, unit = unitOf(r), q = qfix(it.q, unit);
+    return { it, i, r, c: it.c, desc: descOf(r), unit, cat, p, q, tot: p == null ? null : Math.round(p * q * 100) / 100, let: CLI ? letterOf(r) : '' };
   }).filter(Boolean);
 }
 const total = ls => Math.round(ls.reduce((s, l) => s + (l.tot || 0), 0) * 100) / 100;
@@ -5280,7 +5290,7 @@ const total = ls => Math.round(ls.reduce((s, l) => s + (l.tot || 0), 0) * 100) /
 const r2 = n => Math.round(n * 100) / 100;
 function disc(ls) {
   const t = total(ls), a = L.sc1 ? r2(t * L.sc1 / 100) : 0, b = L.sc2 ? r2((t - a) * L.sc2 / 100) : 0;
-  return { t, a, b, fin: r2(t - a - b), any: !NOP && !!(L.sc1 || L.sc2) };
+  return { t, a, b, fin: r2(t - a - b), any: !!(L.sc1 || L.sc2) };
 }
 const pctTxt = n => String(n).replace('.', ',') + '%';
 function discLines(ls) {
@@ -5350,21 +5360,21 @@ function listRender() {
   if (sview) { savedRender(); return; }
   const bar = sbarHtml();
   if (!ls.length) {
-    body.innerHTML = bar + goneHtml + `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità${NOP ? ' e lettera' : ' e prezzo che puoi cambiare'}.</div>`;
+    body.innerHTML = bar + goneHtml + `<div class="empty"><b>La lista è vuota</b>Apri un articolo e tocca <b style="display:inline;font-size:inherit">+ Lista</b>: lo trovi qui, con quantità${CLI ? ' e lettera' : ' e prezzo che puoi cambiare'}.</div>`;
     return;
   }
   body.innerHTML = bar + (CLI ? '' : `<label class="nv-lfield">Cliente (facoltativo)<input id="listCli" type="text" maxlength="80" autocomplete="off" placeholder="Nome del cliente o della barca" value="${escH(L.cliente || '')}"></label>`)
-    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !NOP ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
+    + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
-      ${NOP ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
-      <span class="tot" data-ltot>${l.tot == null || NOP ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
-    + `${NOP ? '' : `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>`}
-    ${NOP ? '' : `<div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
+      ${CLI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
+      <span class="tot" data-ltot>${l.tot == null || CLI ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
+    + `${CLI ? '' : `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>`}
+    ${CLI ? '' : `<div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
     <div id="listDisc">${discHtml(ls)}</div>`}
-    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="${CLI ? 'Es. promemoria' : 'Es. consegna, validità'}">${escH(L.note || '')}</textarea></label>
+    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="${CLI ? 'Es. promemoria' : 'Es. consegna, sconto, validità'}">${escH(L.note || '')}</textarea></label>
     ${noPdf() ? '' : `<label class="nv-lfoto"><input type="checkbox" id="listFoto"${fotoOn() ? ' checked' : ''}> Foto degli articoli nel PDF</label>`}
     <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg" style="grid-column:1/-1">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}${saveBtnHtml()}${L.sid ? '' : '<button type="button" class="del" id="listClear">Svuota la lista</button>'}</div>
-    ${NOP ? '' : `<p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`}`;
+    ${CLI ? '' : `<p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`}`;
   try { if (typeof hydrateThumbs === 'function') hydrateThumbs(); } catch (e) {}
   if (!noPdf() && fotoOn()) setTimeout(() => warmImgs(lines()), 400);
 }
@@ -5384,7 +5394,7 @@ function spush(a, f, keep) {
   while (a.length > SMAX) { const k = a.map(x => x.id).lastIndexOf(a.filter(x => x.id !== keep).pop().id); out.push(a.splice(k, 1)[0].name); }  // the oldest go, never the one being opened
   return sset(a) && out;  // the names taken away (an empty list is still a success)
 }
-const snap = () => ({ items: L.items.map(x => ({ c: x.c, q: x.q, p: NOP ? null : x.p })), cliente: L.cliente || '', note: L.note || '', sc1: NOP ? null : L.sc1, sc2: NOP ? null : L.sc2 });
+const snap = () => ({ items: L.items.map(x => ({ c: x.c, q: x.q, p: x.p })), cliente: L.cliente || '', note: L.note || '', sc1: L.sc1, sc2: L.sc2 });
 function folderSync() {
   const a = sget(), f = a.find(x => x.id === L.sid);
   if (!f) { delete L.sid; lset(L); return; }
@@ -5404,8 +5414,8 @@ function savedRender() {
   const a = sget().sort((x, y) => y.at - x.at), body = $$('listBody');
   $$('listSub').textContent = a.length ? (a.length === 1 ? '1 lista salvata' : a.length + ' liste salvate') : '';
   body.innerHTML = `<div class="nv-sbar"><button type="button" class="nv-sbtn" id="listBackCur" style="margin-left:0">‹ Lista attuale</button></div>`
-    + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'}${NOP ? '' : ' · € ' + eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
-      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità${NOP ? ' e note' : ', prezzi, sconti e note'}.</div>`);
+    + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'}${CLI ? '' : ' · € ' + eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
+      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità${CLI ? ' e note' : ', prezzi, sconti e note'}.</div>`);
 }
 function sopen(id) {
   const a = sget(), f = a.find(x => x.id === id); if (!f) return;
@@ -5446,7 +5456,7 @@ sheet.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id ==
 function rowUpdate(el) {
   const c = el.dataset.lc, it = L.items.find(x => x.c === c); if (!it) return;
   const ls = lines(), l = ls.find(x => x.c === c); if (!l) return;
-  if (NOP) return;  // customer copy: no amounts to update
+  if (CLI) return;  // customer copy: no amounts to update
   el.querySelector('[data-ltot]').textContent = l.tot == null ? '' : '€ ' + eur(l.tot);
   el.querySelector('.nv-price').classList.toggle('edited', it.p != null && it.p !== l.cat);
   $$('listTot').textContent = '€ ' + eur(total(ls));
@@ -5538,7 +5548,7 @@ function msgText(ls) {
   const out = [CLI ? '*Lista articoli* ' + today() : '*Battagli Marine Hardware* – Lista articoli ' + today()];
   if (!CLI && (L.cliente || '').trim()) out.push('Cliente: ' + L.cliente.trim());
   out.push('');
-  if (NOP) {  // only code, description, quantity and price letter
+  if (CLI) {  // only code, description, quantity and price letter
     for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   Q.tà ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + (l.let ? ' · ' + l.let : ''));
     if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
     return out.join('\n');
@@ -5609,7 +5619,7 @@ function buildPdf(ls) {
   const txt = (x, yy, s, size, bold, right, gray) => { s = enc(s); const xx = right ? x - tw(s, size, bold) : x; ops.push((gray ? '0.4 g ' : '0 g ') + 'BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + xx.toFixed(2) + ' ' + yy.toFixed(2) + ' Td ' + pstr(s) + ' Tj ET'); };
   const line = (x1, yy, x2, w, g) => ops.push((g == null ? 0.75 : g) + ' G ' + (w || 0.6) + ' w ' + x1.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x2.toFixed(2) + ' ' + yy.toFixed(2) + ' l S');
   // columns: code | description | qty | price | total
-  const IW = 46, X = { img: M, code: M + IW + 8, desc: M + IW + 82, qtyR: PW - M - (NOP ? 70 : 150), priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
+  const IW = 46, X = { img: M, code: M + IW + 8, desc: M + IW + 82, qtyR: PW - M - (CLI ? 70 : 150), priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
   const imgs = [], used = [];
   const head = first => {
     if (first) {
@@ -5622,7 +5632,7 @@ function buildPdf(ls) {
       y = PH - M - 54; }
       if (!CLI && (L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
     } else { txt(M, PH - M - 12, CLI ? 'Lista articoli (segue)' : 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
-    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (NOP) txt(X.totR, y, 'Lettera', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
+    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
   const newPage = () => { pages.push(ops); used.push(cur); ops = []; cur = new Set(); head(false); };
@@ -5639,13 +5649,13 @@ function buildPdf(ls) {
     txt(X.code, y, fmtCode(l.c), 9.5, true);
     d.forEach((s, k) => txt(X.desc, y - k * 11.5, s, 9.5, false));
     txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
-    if (NOP) txt(X.totR, y, l.let || '-', 9.5, true, true);
+    if (CLI) txt(X.totR, y, l.let || '-', 9.5, true, true);
     else { txt(X.priceR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, false, true);
     txt(X.totR, y, l.tot == null ? '-' : eur(l.tot), 9.5, true, true); }
     y -= h - 9.5; line(M, y, PW - M, 0.4); y -= 13;
   }
   if (y < M + 60 + discOut(ls).length * 14) newPage();
-  const tt = '€ ' + eur(total(ls)); y -= 4; if (!NOP) txt(Math.min(X.priceR, X.totR - tw(enc(tt), 11, true) - 12), y, 'Totale', 11, true, true); if (!NOP) { txt(X.totR, y, tt, 11, true, true); y -= 14; }
+  const tt = '€ ' + eur(total(ls)); y -= 4; if (!CLI) txt(Math.min(X.priceR, X.totR - tw(enc(tt), 11, true) - 12), y, 'Totale', 11, true, true); if (!CLI) { txt(X.totR, y, tt, 11, true, true); y -= 14; }
   const dO = discOut(ls);
   if (dO.length) {  // its own box under the total
     y -= 6; const bh = dO.length * 15 + 10, bx = X.priceR - 90;
@@ -5653,7 +5663,7 @@ function buildPdf(ls) {
     y -= 4; for (const [k, v] of dO) { txt(bx + 8, y, k, 10.5, true); txt(X.totR - 8, y, v, 10.5, true, true); y -= 15; }
     y -= 6;
   }
-  if (!NOP && ls.some(l => l.p == null)) { txt(X.totR, y, 'Alcuni prezzi sono da definire', 8.5, false, true, true); y -= 12; }
+  if (!CLI && ls.some(l => l.p == null)) { txt(X.totR, y, 'Alcuni prezzi sono da definire', 8.5, false, true, true); y -= 12; }
   const note = (L.note || '').trim();
   if (note) {
     y -= 10; const nl = [].concat(...note.split(/\r?\n/).map(p => p.trim() ? wrap(enc(p), 9.5, false, PW - 2 * M) : [''])).slice(0, 40);
