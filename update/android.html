@@ -620,7 +620,8 @@ main > *, .art > *, .photos > *, .row > *, .search-sticky > * { min-width: 0; ma
   <section><div class="block-h"><h2>Ricerca da foto</h2></div><div class="credit" style="text-align:left"><p class="visnote" id="visSetting" style="margin:0">Non attiva</p><div class="visbar" style="margin-top:10px"><i id="visSetBar"></i></div></div></section>
   <section id="avvSec"><div class="block-h"><h2>Uso interno</h2></div><div class="avv-txt"><p>Questa app è solo per i dipendenti Battagli.</p>
 <ul><li>Non divulgare i prezzi e i dati dell'app.</li><li>Non inviare il link dell'app a persone esterne.</li><li>Non condividere il PIN.</li></ul>
-<p>I prezzi sono IVA esclusa e solo indicativi. Chi ha creato l'app non risponde di come viene usata.</p></div></section>
+<p>L'app è solo un lettore del catalogo PDF: mostra quello che c'è nel PDF caricato. Se il catalogo è aggiornato, anche i prezzi lo sono. Chi ha creato l'app non risponde del contenuto dei PDF né di come l'app viene usata.</p>
+<p>I prezzi sono IVA esclusa. L'app non serve per fare preventivi.</p></div></section>
   <section id="updSec"><div class="block-h"><h2>Aggiornamenti</h2><span id="appVer"></span></div><button class="btn primary" type="button" id="updCheck">Controlla aggiornamenti</button><p class="note" id="updNote" style="margin-top:8px">Si aggiorna l'app (funzioni e ricerca). Quando esce un catalogo nuovo l'app lo propone da sola; si può anche caricare un PDF con "Aggiorna catalogo". Quando c'è una versione nuova compare in alto il pulsante "Aggiorna". Catalogo, preferiti, numeri e impostazioni restano salvati.</p></section>
   <section><div class="block-h"><h2>Cronologia</h2></div><button class="btn ghost" type="button" id="clearHist2" style="background:var(--soft);color:var(--ink)">Cancella cronologia delle ricerche</button></section>
   <section><div class="credit">App creata da<b>Sergio Tassoni</b><small>Battagli Marine Hardware · Catalogo Codici</small></div></section>
@@ -6529,7 +6530,7 @@ window.__lista = { add: addCode, remove: removeCode, lines, msgText, open: listO
 </script><script>
 /* Avvertenze (Sergio 29-10-2026): shown once, accepted with a tap; always readable in Impostazioni */
 (function () {
-  var K = 'avvisoOk', V = '2';
+  var K = 'avvisoOk', V = '3';
   try { if (localStorage.getItem(K) === V) return; } catch (e) { return; }
   var d = document.createElement('div'); d.id = 'avvDlg';
   d.innerHTML = '<div class="box" role="dialog" aria-modal="true" aria-labelledby="avvT"><h3 id="avvT">Copia per uso interno</h3><div class="avv-txt">' + document.querySelector('#avvSec .avv-txt').innerHTML + '</div><button type="button" id="avvOk">Ho capito</button></div>';
