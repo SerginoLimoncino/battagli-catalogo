@@ -5491,6 +5491,7 @@ window.openRow = function (i) { const r = orig.apply(this, arguments); try { mou
 // Lista: in both copies. Employee copy: "Lista per il cliente" with editable prices and the Battagli header.
 // Customer copy (CLI = true): "Lista dei desideri" on a plain white sheet, no name or logo, no euro prices: only code, quantity and the catalogue's price letter (Sergio 28-10-2026). Liste salvate in both copies (customers too, kept apart in listeSalvateClienti).
 const CLI = false;
+const NOTOT = true;  // employee list: price of each article only, no discounts and no totals (Sergio 29-10-2026)
 /*INT{*//*}INT*/
 // Tutto succede sul telefono: nessuna pagina esterna, nessun servizio online.
 (function () {
@@ -6011,7 +6012,7 @@ const total = ls => Math.round(ls.reduce((s, l) => s + (l.tot || 0), 0) * 100) /
 const r2 = n => Math.round(n * 100) / 100;
 function disc(ls) {
   const t = total(ls), a = L.sc1 ? r2(t * L.sc1 / 100) : 0, b = L.sc2 ? r2((t - a) * L.sc2 / 100) : 0;
-  return { t, a, b, fin: r2(t - a - b), any: !!(L.sc1 || L.sc2) };
+  return { t, a, b, fin: r2(t - a - b), any: !NOTOT && !!(L.sc1 || L.sc2) };
 }
 const pctTxt = n => String(n).replace('.', ',') + '%';
 function discLines(ls) {
@@ -6088,11 +6089,11 @@ function listRender() {
     + ls.map(l => `<div class="nv-lrow" data-lc="${l.c}"><div class="top"><span class="nv-lth" data-thumb="${l.i}"></span><button class="t" type="button" data-i="${l.i}"><b>${fmtCode(l.c)}</b><span>${escH(l.desc)}</span>${l.cat == null && !CLI ? '<small>Prezzo non indicato nel catalogo: scrivilo tu</small>' : ''}</button><button class="x" type="button" data-ldel="${l.c}" aria-label="Togli dalla lista">✕</button></div>
       <div class="nums"><span class="nv-step"><button type="button" data-lq="-1" aria-label="Meno">−</button><input type="text" inputmode="${decUnit(l.unit) ? 'decimal' : 'numeric'}" data-lqi value="${qtxt(l.q)}" aria-label="Quantità"><button type="button" data-lq="1" aria-label="Più">+</button></span>
       ${CLI ? `<span class="nv-price ro nv-let">${escH(l.let)}</span>` : `<label class="nv-price${l.it.p != null && l.it.p !== l.cat ? ' edited' : ''}">€<input type="text" inputmode="decimal" data-lp value="${l.p == null ? '' : eur(l.p)}" placeholder="prezzo" aria-label="Prezzo cadauno">${l.unit ? '/' + l.unit : ''}</label>`}
-      <span class="tot" data-ltot>${l.tot == null || CLI ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
-    + `${CLI ? '' : `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>`}
-    ${CLI ? '' : `<div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
+      <span class="tot" data-ltot>${l.tot == null || CLI || NOTOT ? '' : '€ ' + eur(l.tot)}</span></div></div>`).join('') + goneHtml
+    + `${CLI || NOTOT ? '' : `<div class="nv-ltotal"><span>Totale</span><span id="listTot">€ ${eur(total(ls))}</span></div>`}
+    ${CLI || NOTOT ? '' : `<div class="nv-lsc"><label class="nv-lfield">Sconto %<input id="listSc1" type="text" inputmode="decimal" maxlength="6" placeholder="es. 20" value="${L.sc1 == null ? '' : String(L.sc1).replace('.', ',')}"></label><label class="nv-lfield">Extra sconto %<input id="listSc2" type="text" inputmode="decimal" maxlength="6" placeholder="es. 5" value="${L.sc2 == null ? '' : String(L.sc2).replace('.', ',')}"></label></div>
     <div id="listDisc">${discHtml(ls)}</div>`}
-    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="${CLI ? 'Es. promemoria' : 'Es. consegna, sconto, validità'}">${escH(L.note || '')}</textarea></label>
+    <label class="nv-lfield">Note (facoltative)<textarea id="listNote" rows="2" maxlength="600" placeholder="${CLI ? 'Es. promemoria' : 'Es. consegna, validità'}">${escH(L.note || '')}</textarea></label>
     ${noPdf() ? '' : `<label class="nv-lfoto"><input type="checkbox" id="listFoto"${fotoOn() ? ' checked' : ''}> Foto degli articoli nel PDF</label>`}
     <div class="nv-lact">${noPdf() ? '<button type="button" id="listMsg" style="grid-column:1/-1">Invia lista</button>' : '<button type="button" id="listPdf">Invia PDF</button><button type="button" class="alt" id="listMsg">Invia messaggio</button>'}${saveBtnHtml()}${L.sid ? '' : '<button type="button" class="del" id="listClear">Svuota la lista</button>'}</div>
     ${CLI ? '' : `<p class="nv-lhelp">Il prezzo che cambi vale solo per questa lista: il catalogo resta com'è.</p>`}`;
@@ -6115,7 +6116,7 @@ function spush(a, f, keep) {
   while (a.length > SMAX) { const k = a.map(x => x.id).lastIndexOf(a.filter(x => x.id !== keep).pop().id); out.push(a.splice(k, 1)[0].name); }  // the oldest go, never the one being opened
   return sset(a) && out;  // the names taken away (an empty list is still a success)
 }
-const snap = () => ({ items: L.items.map(x => ({ c: x.c, q: x.q, p: x.p })), cliente: L.cliente || '', note: L.note || '', sc1: L.sc1, sc2: L.sc2 });
+const snap = () => ({ items: L.items.map(x => ({ c: x.c, q: x.q, p: x.p })), cliente: L.cliente || '', note: L.note || '', sc1: NOTOT ? null : L.sc1, sc2: NOTOT ? null : L.sc2 });
 function folderSync() {
   const a = sget(), f = a.find(x => x.id === L.sid);
   if (!f) { delete L.sid; lset(L); return; }
@@ -6135,8 +6136,8 @@ function savedRender() {
   const a = sget().sort((x, y) => y.at - x.at), body = $$('listBody');
   $$('listSub').textContent = a.length ? (a.length === 1 ? '1 lista salvata' : a.length + ' liste salvate') : '';
   body.innerHTML = `<div class="nv-sbar"><button type="button" class="nv-sbtn" id="listBackCur" style="margin-left:0">‹ Lista attuale</button></div>`
-    + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'}${CLI ? '' : ' · € ' + eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
-      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità${CLI ? ' e note' : ', prezzi, sconti e note'}.</div>`);
+    + (a.length ? a.map(f => { const t = stot(f.d); return `<div class="nv-scard${f.id === L.sid ? ' on' : ''}"><button type="button" class="o" data-sopen="${f.id}"><span class="ic">${FOLD}</span><span><b>${escH(f.name)}</b><small>${when(f.at)}</small><em>${t.n === 1 ? '1 articolo' : t.n + ' articoli'}${CLI || NOTOT ? '' : ' · € ' + eur(t.t)}</em></span></button><button type="button" class="x" data-sdel="${f.id}" aria-label="Elimina la lista salvata">✕</button></div>`; }).join('')
+      : `<div class="empty"><b>Nessuna lista salvata</b>Nella lista tocca <b style="display:inline;font-size:inherit">Salva la lista</b>: la ritrovi qui, con quantità${CLI ? ' e note' : (NOTOT ? ', prezzi e note' : ', prezzi, sconti e note')}.</div>`);
 }
 function sopen(id) {
   const a = sget(), f = a.find(x => x.id === id); if (!f) return;
@@ -6178,9 +6179,9 @@ function rowUpdate(el) {
   const c = el.dataset.lc, it = L.items.find(x => x.c === c); if (!it) return;
   const ls = lines(), l = ls.find(x => x.c === c); if (!l) return;
   if (CLI) return;  // customer copy: no amounts to update
-  el.querySelector('[data-ltot]').textContent = l.tot == null ? '' : '€ ' + eur(l.tot);
+  if (!NOTOT) el.querySelector('[data-ltot]').textContent = l.tot == null ? '' : '€ ' + eur(l.tot);
   el.querySelector('.nv-price').classList.toggle('edited', it.p != null && it.p !== l.cat);
-  $$('listTot').textContent = '€ ' + eur(total(ls));
+  if (!NOTOT) $$('listTot').textContent = '€ ' + eur(total(ls));
   const dd = $$('listDisc'); if (dd) dd.innerHTML = discHtml(ls);
 }
 sheet.addEventListener('click', e => {
@@ -6274,9 +6275,10 @@ function msgText(ls) {
     if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
     return out.join('\n');
   }
-  for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ' + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + ' = € ' + eur(l.tot)));
+  for (const l of ls) out.push('• ' + fmtCode(l.c) + ' ' + l.desc, '   ' + qtxt(l.q) + (decUnit(l.unit) ? ' ' + l.unit : '') + ' x ' + (l.p == null ? 'prezzo da definire' : '€ ' + eur(l.p) + (l.unit ? '/' + l.unit : '') + (NOTOT ? '' : ' = € ' + eur(l.tot))));
   const dl = discOut(ls);
-  out.push('', '*Totale € ' + eur(total(ls)) + '*' + (ls.some(l => l.p == null) ? ' (alcuni prezzi da definire)' : ''));
+  if (NOTOT) { if (ls.some(l => l.p == null)) out.push('', '(alcuni prezzi da definire)'); }
+  else out.push('', '*Totale € ' + eur(total(ls)) + '*' + (ls.some(l => l.p == null) ? ' (alcuni prezzi da definire)' : ''));
   dl.forEach(([k, v]) => out.push('*' + k + ' ' + v + '*'));
   if ((L.note || '').trim()) out.push('', 'Note: ' + L.note.trim());
   return out.join('\n');
@@ -6340,7 +6342,7 @@ function buildPdf(ls) {
   const txt = (x, yy, s, size, bold, right, gray) => { s = enc(s); const xx = right ? x - tw(s, size, bold) : x; ops.push((gray ? '0.4 g ' : '0 g ') + 'BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + xx.toFixed(2) + ' ' + yy.toFixed(2) + ' Td ' + pstr(s) + ' Tj ET'); };
   const line = (x1, yy, x2, w, g) => ops.push((g == null ? 0.75 : g) + ' G ' + (w || 0.6) + ' w ' + x1.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x2.toFixed(2) + ' ' + yy.toFixed(2) + ' l S');
   // columns: code | description | qty | price | total
-  const IW = 46, X = { img: M, code: M + IW + 8, desc: M + IW + 82, qtyR: PW - M - (CLI ? 70 : 150), priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
+  const IW = 46, X = { img: M, code: M + IW + 8, desc: M + IW + 82, qtyR: PW - M - (CLI || NOTOT ? 70 : 150), priceR: PW - M - 72, totR: PW - M }, DW = X.qtyR - 38 - X.desc;
   const imgs = [], used = [];
   const head = first => {
     if (first) {
@@ -6353,7 +6355,7 @@ function buildPdf(ls) {
       y = PH - M - 54; }
       if (!CLI && (L.cliente || '').trim()) { for (const s of wrap(enc('Cliente: ' + L.cliente.trim()), 11, true, PW - 2 * M, 2)) { txt(M, y, s, 11, true); y -= 14; } y -= 6; }
     } else { txt(M, PH - M - 12, CLI ? 'Lista articoli (segue)' : 'Battagli Marine Hardware - Lista articoli (segue)', 10, false, false, true); y = PH - M - 30; }
-    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
+    txt(X.code, y, 'Codice', 9, true); txt(X.desc, y, 'Descrizione', 9, true); txt(X.qtyR, y, 'Q.tà', 9, true, true); if (CLI) txt(X.totR, y, 'Lettera', 9, true, true); else if (NOTOT) txt(X.totR, y, 'Prezzo €', 9, true, true); else { txt(X.priceR, y, 'Prezzo €', 9, true, true); txt(X.totR, y, 'Totale €', 9, true, true); }
     y -= 6; line(M, y, PW - M, 0.8, 0); y -= 13;
   };
   const newPage = () => { pages.push(ops); used.push(cur); ops = []; cur = new Set(); head(false); };
@@ -6371,12 +6373,13 @@ function buildPdf(ls) {
     d.forEach((s, k) => txt(X.desc, y - k * 11.5, s, 9.5, false));
     txt(X.qtyR, y, qtxt(l.q), 9.5, false, true);
     if (CLI) txt(X.totR, y, l.let || '-', 9.5, true, true);
+    else if (NOTOT) txt(X.totR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, true, true);
     else { txt(X.priceR, y, l.p == null ? '-' : eur(l.p) + (l.unit ? '/' + l.unit : ''), 9.5, false, true);
     txt(X.totR, y, l.tot == null ? '-' : eur(l.tot), 9.5, true, true); }
     y -= h - 9.5; line(M, y, PW - M, 0.4); y -= 13;
   }
   if (y < M + 60 + discOut(ls).length * 14) newPage();
-  const tt = '€ ' + eur(total(ls)); y -= 4; if (!CLI) txt(Math.min(X.priceR, X.totR - tw(enc(tt), 11, true) - 12), y, 'Totale', 11, true, true); if (!CLI) { txt(X.totR, y, tt, 11, true, true); y -= 14; }
+  const tt = '€ ' + eur(total(ls)); y -= 4; if (!CLI && !NOTOT) txt(Math.min(X.priceR, X.totR - tw(enc(tt), 11, true) - 12), y, 'Totale', 11, true, true); if (!CLI && !NOTOT) { txt(X.totR, y, tt, 11, true, true); y -= 14; }
   const dO = discOut(ls);
   if (dO.length) {  // its own box under the total
     y -= 6; const bh = dO.length * 15 + 10, bx = X.priceR - 90;
