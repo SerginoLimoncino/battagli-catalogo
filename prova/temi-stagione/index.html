@@ -3070,6 +3070,8 @@ setInterval(stagApplica, 30 * 60 * 1000);
   bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99;background:#111;color:#fff;font:600 13px system-ui;padding:6px 8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center';
   bar.innerHTML = 'PROVA data: <input type="date" id="pDate" style="font:inherit"> <button data-d="">Oggi</button><button data-d="2026-12-10">Natale</button><button data-d="2027-03-20">Pasqua 27</button><button data-d="2026-10-31">Halloween</button><button data-d="2027-07-15">Estate</button><button data-d="2027-01-10">Inverno</button><button data-d="2027-04-20">Primavera</button><button id="pReset">Azzera memoria temi</button>';
   document.body.appendChild(bar);
+  bar.querySelectorAll('button').forEach(b => { b.style.cssText = 'background:#333;color:#fff;border:1px solid #666;border-radius:8px;padding:4px 8px;font:inherit'; });
+  document.body.style.paddingTop = bar.offsetHeight + 'px';
   const set = d => { window.__dataProva = d || ''; bar.querySelector('#pDate').value = d || ''; stagApplica(); };
   bar.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.id === 'pReset') { ['prova-theme', 'prova-temaAuto', 'prova-themePrima', 'prova-stagVisti'].forEach(k => localStorage.removeItem(k)); set(window.__dataProva); return; } set(b.dataset.d); });
   bar.querySelector('#pDate').addEventListener('change', e => set(e.target.value));
