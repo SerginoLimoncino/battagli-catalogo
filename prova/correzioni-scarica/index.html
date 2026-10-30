@@ -122,8 +122,8 @@ footer { text-align: center; color: var(--muted); font-size: 13px; padding: 28px
       steps: ['Tocca <b>Scarica per Android</b> e aspetta che finisca.', 'Apri il file <b>Battagli-Marine-Hardware.apk</b> dalle notifiche o dalla cartella Download.', 'Se il telefono lo chiede, tocca <b>Impostazioni → Consenti da questa fonte</b>, poi <b>Installa</b>.', 'Alla prima apertura il catalogo si scarica da solo (serve internet qualche minuto).'] },
     iphone: { name: 'iPhone', label: 'Apri su iPhone', small: 'iPhone e iPad · con Safari', href: 'https://serginolimoncino.github.io/battagli-cliente/',
       steps: ['Tocca <b>Apri su iPhone</b> (usa <b>Safari</b>).', 'Tocca il tasto <b>Condividi</b> (quadrato con la freccia in su).', 'Scegli <b>Aggiungi alla schermata Home</b>, poi <b>Aggiungi</b>.', 'Apri l\'app dall\'icona Battagli: il catalogo si carica da solo la prima volta.'] },
-    pc: { name: 'PC Windows', label: 'Scarica per PC', small: 'Windows 10 e 11 · circa 100 MB', href: 'https://serginolimoncino.github.io/battagli-cliente/app/Battagli-PC-Windows.zip', dl: true,
-      steps: ['Clicca <b>Scarica per PC</b>.', 'Apri il file scaricato e <b>estrai tutto</b> in una cartella.', 'Apri <b>Battagli Catalogo</b>.', 'Se compare l\'avviso blu di Windows: <b>Ulteriori informazioni → Esegui comunque</b>.'] }
+    pc: { name: 'PC Windows', label: 'Apri su PC', small: 'Nel browser · Chrome o Edge · niente da installare', href: 'https://serginolimoncino.github.io/battagli-cliente/',  /*pclink-st*/
+      steps: ['Clicca <b>Apri su PC</b> (meglio con <b>Chrome</b> o <b>Edge</b>).', 'La prima volta il catalogo si carica da solo, poi funziona anche senza internet.', 'Per averla come icona: in Chrome clicca il simbolo <b>Installa</b> nella barra dell\'indirizzo; in Edge menu <b>…</b> → <b>App</b> → <b>Installa questo sito come app</b>.', 'Oppure salva il link nei <b>Preferiti</b>.'] }
   };
   var ua = navigator.userAgent || '';
   var ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
@@ -164,6 +164,8 @@ footer { text-align: center; color: var(--muted); font-size: 13px; padding: 28px
     D.android.href = p.android; D.android.label = 'Scarica per Android'; D.android.small = 'Copia dipendenti · tutti i telefoni Android';
     D.android.steps[1] = 'Apri il file scaricato dalle notifiche o dalla cartella Download.';
     D.pc.href = p.pc; D.pc.small = 'Copia dipendenti · Windows 10 e 11';
+    D.pc.label = 'Scarica per PC'; D.pc.dl = true;  /*pclink-st: employees keep the PC program*/
+    D.pc.steps = ['Clicca <b>Scarica per PC</b>.', 'Apri il file scaricato e <b>estrai tutto</b> in una cartella.', 'Apri <b>Battagli Catalogo</b>.', 'Se compare l\'avviso blu di Windows: <b>Ulteriori informazioni → Esegui comunque</b>.'];
     D.iphone.href = p.web; D.iphone.small = 'Copia dipendenti · con Safari';
     document.getElementById('try').href = p.web;
     document.body.classList.add('emp');
