@@ -940,7 +940,7 @@ function labelFor(hd, it) {
   return bd < 60 ? best : '';
 }
 
-// Prices look like "12,50 A" (the letter is the price list). Make sure the price is labelled "prezzo":
+// Prices look like "N,NN A" (the letter is the price list). Make sure the price is labelled "prezzo":
 // split it off a cell it is glued to, and label it when the header was missing or wrong.
 const PRICE_RE = /^\d[\d.]*,\d{2} [ABCHNTUXYZ]$/;
 function fixPrice(f) {
@@ -5990,7 +5990,7 @@ function priceOf(r) {
   return +(m[1].replace(/\./g, '') + '.' + m[2]);
 }
 // customer copy: the catalogue shows only the price letter ("A", "H"...), never the euro price
-const letterOf = r => { for (const [k, v] of r.f || []) { const m = /^prezz/i.test(k) && String(v).trim().match(/(?:^|\s)([A-Z]{1,2})$/); if (m) return m[1]; } return ''; };  // "A" or "11,10 A"
+const letterOf = r => { for (const [k, v] of r.f || []) { const m = /^prezz/i.test(k) && String(v).trim().match(/(?:^|\s)([A-Z]{1,2})$/); if (m) return m[1]; } return ''; };  // "A" or "N,NN A"
 function unitOf(r) { const p = (r.f || []).find(([k, v]) => /prezz/i.test(k) && /\d,\d{2}/.test(v)); const m = p && p[0].match(/prezzo\s*(mt|mq|pz|kg|lt|m)\b/i); return m ? m[1].toLowerCase() : ''; }
 function descOf(r) {
   const t = famTitle(r);
