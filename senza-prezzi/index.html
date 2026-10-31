@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark"><meta name="robots" content="noindex">
+<title>Catalogo dipendenti · nuovo indirizzo</title>
+<style>
+body{margin:0;font:16px/1.5 system-ui,-apple-system,sans-serif;background:#f4f6f9;color:#1d2530}
+main{max-width:520px;margin:0 auto;padding:28px 18px}
+h1{font-size:21px;margin:0 0 10px}a{color:#1f6feb}
+.card{background:#fff;border:1px solid #d7dde5;border-radius:16px;padding:18px;margin-top:14px}
+a.btn,button{display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px;border-radius:12px;border:0;font:600 16px system-ui,sans-serif;margin-top:10px;text-decoration:none}
+.p{background:#1f6feb;color:#fff}.s{background:#e8edf3;color:#1d2530}
+ol{padding-left:20px;margin:8px 0 0}small{color:#5b6573}textarea{width:100%;box-sizing:border-box;height:70px;margin-top:10px;font:12px monospace}
+@media (prefers-color-scheme:dark){body{background:#12161c;color:#e6e9ee}a{color:#79b8ff}.card{background:#1b2129;border-color:#2b333d}.s{background:#2b333d;color:#e6e9ee}small{color:#9aa4b1}}
+</style></head><body><main>
+<h1>L'app ha un nuovo indirizzo</h1>
+<p id="msg">Ti sposto al nuovo indirizzo con i tuoi preferiti e le tue liste…</p>
+<div class="card" id="app" hidden>
+  <b>Sei nell'app sulla schermata Home.</b> Per portare i tuoi dati nella nuova:
+  <ol><li>Tocca <b>Copia i miei dati</b>.</li><li>Tocca <b>Apri il nuovo indirizzo</b>, poi tocca Condividi e "Aggiungi a Home".</li><li>Apri la nuova app dalla Home e tocca <b>Incolla i miei dati</b>.</li><li>Poi puoi cancellare questa vecchia icona.</li></ol>
+  <button class="p" id="copia">Copia i miei dati</button>
+  <textarea id="testo" readonly hidden></textarea>
+  <a class="btn s" id="apri" href="https://battagli-dipendenti.pages.dev/">Apri il nuovo indirizzo</a>
+</div>
+<p><small>Nuovo indirizzo: <a id="link" href="https://battagli-dipendenti.pages.dev/">battagli-dipendenti.pages.dev</a>. Il catalogo si scarica di nuovo da solo.</small></p>
+</main>
+<script>
+(function () {
+
+  var CHIAVI = ["fav", "recent", "hist", "cmp", "theme", "themePrima", "nvTabsOff", "listaFoto", "listaCliente", "listeSalvate", "avvisoOk"], ED = "sp", DBNOME = "catalogo-codici-senzaprezzi";
+  function b64u(b) { var s = '', a = new Uint8Array(b); for (var i = 0; i < a.length; i += 32768) s += String.fromCharCode.apply(null, a.subarray(i, i + 32768)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function unb64u(t) { t = t.replace(/-/g, '+').replace(/_/g, '/'); while (t.length % 4) t += '='; var s = atob(t), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+  // gzip when the browser has it ("z"), plain text otherwise ("j"): older phones lose nothing
+  async function impacchetta(o) {
+    var txt = JSON.stringify(o);
+    if (window.CompressionStream) try { return 'z' + b64u(await new Response(new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer()); } catch (e) {}
+    return 'j' + b64u(new TextEncoder().encode(txt));
+  }
+  async function spacchetta(t) {
+    var a = unb64u(t.slice(1));
+    if (t[0] === 'j') return JSON.parse(new TextDecoder().decode(a));
+    if (t[0] !== 'z' || !window.DecompressionStream) throw new Error('formato');
+    return JSON.parse(await new Response(new Blob([a]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
+  }
+  // a key a copy may take, with its value made safe for that copy
+  function adatta(k, v) {
+    if (CHIAVI.indexOf(k) < 0 || typeof v !== 'string') return null;
+    if (ED === 'cl' && /^(theme|themePrima)$/.test(k) && /spezia/i.test(v)) return null;  // customers never get the Spezia theme
+    if (ED === 'sp' && /^(listaCliente|listeSalvate)$/.test(k)) try {  // no-price copy: list prices and discounts stay behind
+      var o = JSON.parse(v);
+      (function via(x) { if (!x || typeof x !== 'object') return; if (Array.isArray(x.items)) x.items.forEach(function (i) { if (i && typeof i === 'object') i.p = null; });
+        if ('sc1' in x) x.sc1 = null; if ('sc2' in x) x.sc2 = null; for (var q in x) via(x[q]); })(o);
+      return JSON.stringify(o);
+    } catch (e) { return null; }
+    return v;
+  }
+  function idbKv(nome, scrivi) {
+    return new Promise(function (ok) {
+      if (!nome || !window.indexedDB) return ok(null);
+      var r; try { r = indexedDB.open(nome); } catch (e) { return ok(null); }
+      r.onupgradeneeded = function () { try { r.result.createObjectStore('kv'); } catch (e) {} };
+      r.onerror = function () { ok(null); };
+      r.onsuccess = function () {
+        var d = r.result;
+        try {
+          var t = d.transaction('kv', scrivi ? 'readwrite' : 'readonly'), st = t.objectStore('kv'), q = st.get('numeri'), v = null;
+          q.onsuccess = function () { v = q.result; if (scrivi && v == null && scrivi.numeri != null) st.put(scrivi.numeri, 'numeri'); };
+          t.oncomplete = t.onerror = t.onabort = function () { d.close(); ok(v); };
+        } catch (e) { d.close(); ok(null); }
+      };
+    });
+  }
+
+  var NUOVO = "https://battagli-dipendenti.pages.dev/", MAX = 6e5;  // the data rides in the address: well under 1 MB
+  function raccogli(senza) {
+    var d = {};
+    CHIAVI.forEach(function (k) { if (senza.indexOf(k) >= 0) return; try { var v = adatta(k, localStorage.getItem(k)); if (v != null) d[k] = v; } catch (e) {} });
+    return d;
+  }
+  async function prepara() {
+    var num = await idbKv(DBNOME), o = { da: location.href, d: raccogli([]), idb: num ? { numeri: num } : undefined };
+    var t = await impacchetta(o), via = [['listaFoto', 'hist', 'recent'], ['listaFoto', 'hist', 'recent', 'listeSalvate', 'listeSalvateClienti']];
+    // too big for the address: the history first, then the saved lists; favourites, the list, settings and Numeri stay
+    for (var i = 0; i < via.length && t.length > MAX; i++) { o.d = raccogli(via[i]); t = await impacchetta(o); }
+    if (t.length > MAX && o.idb) { delete o.idb; t = await impacchetta(o); }
+    return t.length > MAX ? '' : t;
+  }
+  try { navigator.serviceWorker && navigator.serviceWorker.getRegistrations().then(function (r) { r.forEach(function (x) { x.unregister(); }); }); } catch (e) {}
+  var ios = !!navigator.standalone, ui = function (t) {
+    document.getElementById('msg').hidden = true; document.getElementById('app').hidden = false;
+    var dati = 'BATTAGLI-DATI:' + t, b = document.getElementById('copia'), ta = document.getElementById('testo');
+    if (t) { document.getElementById('apri').href = NUOVO + '#migra=' + t; document.getElementById('link').href = NUOVO + '#migra=' + t; }
+    b.onclick = function () {  // no waiting before the copy: Safari allows it only straight from the tap
+      if (!t) { alert('Non riesco a preparare i dati. Apri il nuovo indirizzo: il catalogo funziona lo stesso.'); return; }
+      var fatto = function () { b.textContent = 'Copiati ✓'; };
+      var mano = function () { ta.hidden = false; ta.value = dati; ta.focus(); ta.select(); try { if (document.execCommand('copy')) return fatto(); } catch (e) {} b.textContent = 'Tieni premuto il testo qui sotto e scegli "Copia"'; };
+      try { navigator.clipboard.writeText(dati).then(fatto, mano); } catch (e) { mano(); }
+    };
+  };
+  prepara().then(function (t) {
+    // iPhone/iPad Home app: its data cannot follow a link, so copy and paste; everywhere else the link carries it
+    if (ios || !t) return ui(t);
+    location.replace(NUOVO + '#migra=' + t);
+  }, function () { ui(''); });
+})();
+</script>
+</body></html>
