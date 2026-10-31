@@ -3438,7 +3438,7 @@ $('favQ').addEventListener('input', favPageRender);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('sheet').hidden && !$('favSheet').hidden) favPageClose(); });
 
 // ---------- share the app: Android / iPhone / PC Windows, always this edition ----------
-const SHARE_URL = { android: 'https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-Marine-Hardware.apk', ios: 'https://serginolimoncino.github.io/battagli-catalogo/', pc: 'https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-PC-Windows.zip' };
+const SHARE_URL = {"android": "https://serginolimoncino.github.io/battagli-catalogo/app/Battagli-Marine-Hardware.apk", "ios": "https://battagli-catalogo.pages.dev/", "pc": "https://battagli-catalogo.pages.dev/interno/"};
 const SHARE_TXT = { android: 'Catalogo Battagli per Android: scarica e installa l\'app da questo link.', ios: 'Catalogo Battagli per iPhone: apri il link con Safari, poi Condividi > "Aggiungi alla schermata Home".', pc: 'Catalogo Battagli per PC Windows: scarica lo zip, estrailo e apri "Battagli Catalogo".' };
 async function shareTo(k) {
   const url = SHARE_URL[k], text = SHARE_TXT[k];
@@ -3465,7 +3465,7 @@ document.addEventListener('click', async e => {
 });
 
 // ---------- one-tap updates ----------
-const APP_V = 36, APP_ED = 'interno', APP_PF = 'android', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
+const APP_V = 42, APP_ED = 'interno', APP_PF = 'android', UPD_BASE = 'https://serginolimoncino.github.io/battagli-catalogo/update/';
 // Sergio wants the version shown as 2.0; the build number behind it still grows with every update
 const vTxt = n => '2.0 · copia ' + (APP_ED === 'cliente' ? 'clienti' : 'dipendenti · con prezzi');
 let UPD = null;
